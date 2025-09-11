@@ -6,9 +6,17 @@ import { Divide } from 'lucide-react';
 
 function App() {
 
+  const task = {
+    id: '1',
+    title: 'Sample Task',
+    description: 'This is a sample task description.',
+    completed: false,
+  } as Task;
+
   return (
     <div>
         <h1>Hello</h1>
+        <TaskCard task={task} />
     </div>
   );
 }
