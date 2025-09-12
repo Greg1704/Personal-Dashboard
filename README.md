@@ -43,7 +43,7 @@ In this project, I am looking to refine my abilities on React, while learning ne
 - `Header` - Title and statistics
 - `TaskForm` - Create/edit tasks
 - `TaskCard` - Individual task view
-- `TaskList` - Task container
+- `TaskBoard` - Task container
 - `FilterBar` - Filters and search
 - `Dashboard` - Statistics view
 
@@ -58,7 +58,7 @@ In this project, I am looking to refine my abilities on React, while learning ne
 
 ## 🚀 Development Phases
 
-- **Phase 1:** Basic TaskCard
+- **Phase 1:** Basic TaskBoard
 - **Phase 2:** Form to create tasks
 - **Phase 3:** Filters and search
 - **Phase 4:** Dashboard with statistics
