@@ -10,7 +10,7 @@ function App() {
     id: '1',
     title: 'Sample Task',
     description: 'This is a sample task description.',
-    completed: false,
+    completed: true,
   } as Task;
 
   return (
