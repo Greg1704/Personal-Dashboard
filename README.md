@@ -14,7 +14,7 @@ In this project, I am looking to refine my abilities on React, while learning ne
 ### Organization:
 - 📂 **Filters:** All, Completed, Pending
 - 🏷️ **Categories:** Work, Personal, Urgent
-- 🔍 **Search** by title/description
+- 🔍 **Search** by title/description (Could implement Fuse.js)
 - 📅 **Due dates**
 
 ### Views:
