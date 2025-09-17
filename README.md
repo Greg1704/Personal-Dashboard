@@ -58,9 +58,9 @@ In this project, I am looking to refine my abilities on React, while learning ne
 
 ## 🚀 Development Phases
 
-- **Phase 1:** Basic TaskBoard
+- **Phase 1:** Basic TaskBoard **COMPLETADO**
 - **Phase 2:** Form to create tasks
-- **Phase 3:** Filters and search
+- **Phase 3:** Filters and search **EN PROGRESO**
 - **Phase 4:** Dashboard with statistics
 - **Phase 5:** React Router and multiple views
 - **Phase 6:** Optimizations and localStorage

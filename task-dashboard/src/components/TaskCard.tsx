@@ -3,10 +3,9 @@ import { type Task } from '../types/Task';
 
 interface TaskCardProps {
   task: Task;
+  onStatusChange: (id: string, completed: boolean) => void;
 }
-export function TaskCard({ task }: TaskCardProps) {
-
-  const [status, setStatus] = useState(task.completed);
+export function TaskCard({ task, onStatusChange }: TaskCardProps) {
 
 
   return (
@@ -14,8 +13,8 @@ export function TaskCard({ task }: TaskCardProps) {
       <div className='p-3'>
         <h2 className="text-3xl py-1 w-full truncate">{task.title}</h2>
         <p className="text-sm  pt-2">
-          Status: <button onClick={() => setStatus(!status)} className={`px-2 rounded text-white text-xs font-semibold ${status ? 'bg-green-600' : 'bg-red-600'}`}>
-                    {status? 'Completed' : 'Pending'}
+          Status: <button onClick={(e)=>onStatusChange(task.id, !task.completed)} className={`px-2 rounded text-white text-xs font-semibold ${task.completed ? 'bg-green-600' : 'bg-red-600'}`}>
+                    {task.completed? 'Completed' : 'Pending'}
                   </button>
         </p>
       </div>

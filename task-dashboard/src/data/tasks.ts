@@ -16,7 +16,7 @@ export const tasks: Task[] = [
   {
     id: '3',
     title: 'Code Review',
-    description: 'Review pull requests from team members and provide constructive feedback on implementation. Review pull requests from team members and provide constructive feedback on implementation. ',
+    description: 'Review pull requests from team members and provide constructive feedback on implementation.',
     completed: false,
   },
   {

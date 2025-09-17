@@ -2,29 +2,49 @@
 import { useState } from 'react';
 import { TaskCard } from './components/TaskCard';
 import { Sidebar } from './components/Sidebar';
-import {tasks} from './data/tasks';
-import { Divide } from 'lucide-react';
+import {tasks as taskData} from './data/tasks';
+import {checkboxes} from './data/checkboxes';
 
 function App() {
 
   //state variables
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterCheckboxes, setFilterCheckboxes] = useState(checkboxes);
+  const [tasks, setTasks] = useState(taskData);
+
+  const activeCheckboxes = filterCheckboxes.filter(checkbox => checkbox.checked).map(checkbox => checkbox.label);
 
   const filteredTasks = tasks.filter(task =>
-    task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    task.description?.toLowerCase().includes(searchTerm.toLowerCase())
+    (task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    task.description?.toLowerCase().includes(searchTerm.toLowerCase()))
+    && (activeCheckboxes.length === 0 || activeCheckboxes.includes(task.completed ? 'Completed' : 'Pending'))
   );
 
+  function onCheckboxChange(id: string, checked: boolean) {
+    const updatedCheckboxes = filterCheckboxes.map(checkbox =>
+      checkbox.id === id ? { ...checkbox, checked } : checkbox
+    );
+    setFilterCheckboxes(updatedCheckboxes);
+  }
+
+  function onTaskStatusChange(id: string, completed: boolean) {
+    const updatedTasks = tasks.map(task =>
+      task.id === id ? { ...task, completed } : task
+    );
+    setTasks(updatedTasks);
+  }
+
+  
   const taskList = filteredTasks.map((task) => (
-    <TaskCard key={task.id} task={task} />
+    <TaskCard key={task.id} task={task} onStatusChange={onTaskStatusChange}/>
   ));
 
   const taskBoard = (
-      <div className="bg-slate-900 w-12/12 flex flex-row rounded-lg m-5">
-        <div className="bg-red-500 w-1/5 p-10 rounded-l-lg">
-          <Sidebar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+      <div className="bg-slate-900 flex flex-row rounded-lg m-5 min-w-fit">
+        <div className="bg-red-500 w-1/5 p-10 rounded-l-lg min-w-64">
+          <Sidebar searchTerm={searchTerm} onSearchChange={setSearchTerm}  checkboxes={filterCheckboxes} onCheckboxChange={onCheckboxChange}/>
         </div>
-        <div className='p-10 flex justify-center items-center'>
+        <div className='p-10 flex justify-center items-center flex-1 min-w-96'>
           <div className="flex flex-row flex-wrap gap-2.5 justify-center">
             {taskList}
           </div>
@@ -39,7 +59,7 @@ function App() {
             Personal Dashboard
           </h1>
         </header>
-        <div className ="flex justify-center items-center">
+        <div className ="mx-5 my-5">
           {taskBoard}
         </div>
     </div>
