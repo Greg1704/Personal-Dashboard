@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { TaskCard } from './components/TaskCard';
 import { Sidebar } from './components/Sidebar';
+import { TaskForm } from './components/TaskForm';
 import {tasks as taskData} from './data/tasks';
 import {checkboxes} from './data/checkboxes';
 
@@ -11,6 +12,7 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCheckboxes, setFilterCheckboxes] = useState(checkboxes);
   const [tasks, setTasks] = useState(taskData);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   const activeCheckboxes = filterCheckboxes.filter(checkbox => checkbox.checked).map(checkbox => checkbox.label);
 
@@ -32,6 +34,16 @@ function App() {
       task.id === id ? { ...task, completed } : task
     );
     setTasks(updatedTasks);
+  }
+
+  function addTask(title: string, description: string) {
+    const newTask = {
+      id: crypto.randomUUID(),
+      title,
+      description,
+      completed: false
+    };
+    setTasks([...tasks, newTask]);
   }
 
   
@@ -59,9 +71,15 @@ function App() {
             Personal Dashboard
           </h1>
         </header>
+        <button onClick={() => setIsFormOpen(true)} className='bg-yellow-500 text-white hover:bg-blue-600'>Abrir formulario</button>
         <div className ="mx-5 my-5">
           {taskBoard}
         </div>
+        {isFormOpen && <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+            <div className="bg-slate-800 p-5 rounded-lg shadow-lg w-96">
+              <TaskForm onClose={() => setIsFormOpen(false)} addTask={addTask}/>
+            </div>
+          </div>}
     </div>
   );
 }
