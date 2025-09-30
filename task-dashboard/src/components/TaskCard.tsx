@@ -4,23 +4,34 @@ interface TaskCardProps {
   task: Task;
   onStatusChange: (id: string, completed: boolean) => void;
   color?: string;
+  categoryName?: string;
 }
-export function TaskCard({ task, onStatusChange, color }: TaskCardProps) {
 
-
+export function TaskCard({ task, onStatusChange, color, categoryName }: TaskCardProps) {
   return (
-    <div className={`w-72 h-64 rounded-lg shadow-lg flex flex-col ${color ? `bg-${color}-500` : 'bg-slate-600'}`}>
+    <div 
+      className="w-72 h-64 rounded-lg shadow-lg flex flex-col bg-slate-600 border-l-4"
+      style={{ borderLeftColor: color || '#64748b' }} // slate-500 por defecto
+    >
       <div className='p-3'>
-        <h2 className="text-3xl py-1 w-full truncate">{task.title}</h2>
-        <p className="text-sm  pt-2">
+        {categoryName && (
+          <span 
+            className="inline-block px-2 py-1 rounded-full text-xs font-semibold text-white mb-2"
+            style={{ backgroundColor: color }}
+          >
+            {categoryName}
+          </span>
+        )}
+        <h2 className="text-3xl py-1 w-full truncate text-white">{task.title}</h2>
+        <p className="text-sm pt-2 text-gray-200">
           Status: <button onClick={()=>onStatusChange(task.id, !task.completed)} 
-                          className={`px-2 rounded text-white text-xs font-semibold ${task.completed ? 'bg-green-600' : 'bg-red-600'}`}>
+                          className={`px-2 rounded text-white text-xs font-semibold transition-colors ${task.completed ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}>
                     {task.completed? 'Completed' : 'Pending'}
                   </button>
         </p>
       </div>
-      <div className='bg-stone-400 p-2 rounded-b-lg flex-1'>
-        <p className="w-full line-clamp-5">{task.description}</p>
+      <div className='bg-slate-500 p-2 rounded-b-lg flex-1'>
+        <p className="w-full line-clamp-5 text-gray-100">{task.description}</p>
       </div>
     </div>
   );

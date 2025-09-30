@@ -49,13 +49,22 @@ function App() {
   }
 
   
-  const taskList = filteredTasks.map((task) => (
-    <TaskCard key={task.id} task={task} onStatusChange={onTaskStatusChange} color={categories.find((category) => category.id == task.categoryId)?.color}/>
-  ));
+  const taskList = filteredTasks.map((task) => {
+    const category = categories.find((cat) => cat.id === task.categoryId);
+    return (
+      <TaskCard 
+        key={task.id} 
+        task={task} 
+        onStatusChange={onTaskStatusChange} 
+        color={category?.color}
+        categoryName={category?.name}
+      />
+    );
+  });
 
   const taskBoard = (
       <div className="bg-slate-900 flex flex-row rounded-lg m-5 min-w-fit">
-        <div className="bg-indigo-800 w-1/5 p-10 rounded-l-lg min-w-64">
+        <div className="bg-slate-700 w-1/5 p-10 rounded-l-lg min-w-64 border-r border-slate-600">          
           <Sidebar searchTerm={searchTerm} onSearchChange={setSearchTerm}  checkboxes={filterCheckboxes} onCheckboxChange={onCheckboxChange} setIsFormOpen={setIsFormOpen}/>
         </div>
         <div className='p-10 flex justify-center items-center flex-1 min-w-96'>
@@ -69,7 +78,7 @@ function App() {
   return (
     <div className='min-h-screen bg-gradient-to-b from-slate-800 to-slate-900'>
         <header>
-          <h1 className="text-4xl font-bold text-white text-center p-5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+          <h1 className="text-4xl font-bold text-white text-center p-5 bg-indigo-600">
             Personal Dashboard
           </h1>
         </header>
@@ -77,7 +86,7 @@ function App() {
           {taskBoard}
         </div>
         {isFormOpen && 
-          <div onClick={() => setIsFormOpen(false)} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div onClick={() => setIsFormOpen(false)} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div onClick={(e) => e.stopPropagation()} className="bg-slate-800 p-5 rounded-lg shadow-lg w-96">
               <TaskForm onClose={() => setIsFormOpen(false)} addTask={addTask}/>
             </div>

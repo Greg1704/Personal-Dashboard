@@ -33,26 +33,26 @@ export function TaskForm({onClose, addTask}: TaskFormProps) {
                 <h3 className='text-2xl font-semibold text-gray-200 ml-2'>Title</h3>
                 <input  type="text" value={title} onChange={(e)=>setTitle(e.target.value)} 
                         placeholder='Enter task title'
-                        className="px-2 py-1 border border-slate-400 bg-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                        className="px-2 py-1 border border-slate-400 bg-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
                 />
                 <h3 className='text-2xl font-semibold text-gray-200 ml-2'>Description</h3>
                 <textarea   value={description} onChange={(e)=>setDescription(e.target.value)} 
                             rows={4}
                             placeholder='Enter task description, if you want...'
-                            className="px-2 py-1 mb-2 border border-slate-400 bg-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none rounded"
+                            className="px-2 py-1 mb-2 border border-slate-400 bg-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none rounded"
                 />
                 <button type="submit" 
                         disabled={!isFormValid} 
                         className={`p-2 rounded font-semibold transition-colors ${
                             !isFormValid 
                             ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
-                            : 'bg-blue-500 text-white hover:bg-blue-600'
+                            : 'bg-indigo-600 text-white hover:bg-indigo-700'
                         }`}>
                     Add Task
                 </button>
                 <button type="button" 
                         onClick={cancelForm}
-                        className="p-2 rounded bg-red-500 text-white hover:bg-red-600 font-semibold">
+                        className="p-2 rounded bg-red-600 text-white hover:bg-red-700 font-semibold">
                     Cancel
                 </button>
             </form>
