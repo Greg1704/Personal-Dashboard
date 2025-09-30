@@ -3,12 +3,13 @@ import { type Task } from '../types/Task';
 interface TaskCardProps {
   task: Task;
   onStatusChange: (id: string, completed: boolean) => void;
+  color?: string;
 }
-export function TaskCard({ task, onStatusChange }: TaskCardProps) {
+export function TaskCard({ task, onStatusChange, color }: TaskCardProps) {
 
 
   return (
-    <div className="bg-slate-600 w-72 h-64 rounded-lg shadow-lg flex flex-col">
+    <div className={`w-72 h-64 rounded-lg shadow-lg flex flex-col ${color ? `bg-${color}-500` : 'bg-slate-600'}`}>
       <div className='p-3'>
         <h2 className="text-3xl py-1 w-full truncate">{task.title}</h2>
         <p className="text-sm  pt-2">

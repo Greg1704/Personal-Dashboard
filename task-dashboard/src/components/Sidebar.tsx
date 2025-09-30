@@ -1,5 +1,5 @@
 import { Search, Plus } from 'lucide-react';
-import { type Checkbox } from '../types/Checkbox';
+import { type StateCheckbox } from '../types/StateCheckbox';
 
 
 
@@ -9,7 +9,7 @@ interface SearchBarProps {
 }
 
 interface FilterCheckboxProps {
-    checkboxes: Checkbox[];
+    checkboxes: StateCheckbox[];
     onCheckboxChange: (id: string, checked: boolean) => void;
 }
 

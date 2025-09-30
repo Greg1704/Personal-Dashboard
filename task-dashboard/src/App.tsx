@@ -4,13 +4,15 @@ import { TaskCard } from './components/TaskCard';
 import { Sidebar } from './components/Sidebar';
 import { TaskForm } from './components/TaskForm';
 import {tasks as taskData} from './data/tasks';
-import {checkboxes} from './data/checkboxes';
+import {stateCheckboxes} from './data/stateCheckboxes';
+import {categories as categoryData} from './data/categories';
 
 function App() {
 
   //state variables
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterCheckboxes, setFilterCheckboxes] = useState(checkboxes);
+  const [filterCheckboxes, setFilterCheckboxes] = useState(stateCheckboxes);
+  const [categories, setCategories] = useState(categoryData);
   const [tasks, setTasks] = useState(taskData);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
@@ -48,7 +50,7 @@ function App() {
 
   
   const taskList = filteredTasks.map((task) => (
-    <TaskCard key={task.id} task={task} onStatusChange={onTaskStatusChange}/>
+    <TaskCard key={task.id} task={task} onStatusChange={onTaskStatusChange} color={categories.find((category) => category.id == task.categoryId)?.color}/>
   ));
 
   const taskBoard = (

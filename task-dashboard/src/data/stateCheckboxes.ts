@@ -1,6 +1,6 @@
-import {type Checkbox} from '../types/Checkbox';
+import {type StateCheckbox} from '../types/StateCheckbox';
 
-export const checkboxes: Checkbox[] = [
+export const stateCheckboxes: StateCheckbox[] = [
     {
         id: '1',
         label: 'Completed',
