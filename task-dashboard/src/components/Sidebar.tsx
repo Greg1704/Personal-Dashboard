@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 import { type Checkbox } from '../types/Checkbox';
+
 
 
 interface SearchBarProps {
@@ -13,9 +13,13 @@ interface FilterCheckboxProps {
     onCheckboxChange: (id: string, checked: boolean) => void;
 }
 
-interface SidebarProps extends SearchBarProps, FilterCheckboxProps {}
+interface TaskFormProps{
+    setIsFormOpen: (isOpen: boolean) => void;
+}
 
-export function Sidebar({searchTerm, onSearchChange, checkboxes, onCheckboxChange}: SidebarProps) {
+interface SidebarProps extends SearchBarProps, FilterCheckboxProps, TaskFormProps {}
+
+export function Sidebar({searchTerm, onSearchChange, checkboxes, onCheckboxChange, setIsFormOpen}: SidebarProps) {
 
     const stateCheckboxes = checkboxes.map((checkbox) => (
                 <label key={checkbox.id} className='flex items-center space-x-3 cursor-pointer'>
@@ -27,6 +31,14 @@ export function Sidebar({searchTerm, onSearchChange, checkboxes, onCheckboxChang
     return(
         <>
             <h1 className="text-2xl font-semibold text-white text-center p-3">Sidebar</h1>
+            <button 
+                onClick={() => setIsFormOpen(true)} 
+                className="w-full mb-4 px-4 py-3 border-2 border-purple-500 
+                        text-purple-200 font-semibold rounded-lg hover:bg-purple-500 hover:text-white transition-all
+                        flex items-center justify-center gap-2">
+                    <Plus className="w-5 h-5" />
+                    Create New Task
+            </button>
             <h2 className="text-xl font-semibold text-white text-center p-3">Buscador de texto</h2>
             <div className="w-full max-w-md mx-auto mb-6 relative">
                 <input

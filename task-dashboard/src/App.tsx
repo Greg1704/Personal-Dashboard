@@ -53,8 +53,8 @@ function App() {
 
   const taskBoard = (
       <div className="bg-slate-900 flex flex-row rounded-lg m-5 min-w-fit">
-        <div className="bg-red-500 w-1/5 p-10 rounded-l-lg min-w-64">
-          <Sidebar searchTerm={searchTerm} onSearchChange={setSearchTerm}  checkboxes={filterCheckboxes} onCheckboxChange={onCheckboxChange}/>
+        <div className="bg-indigo-800 w-1/5 p-10 rounded-l-lg min-w-64">
+          <Sidebar searchTerm={searchTerm} onSearchChange={setSearchTerm}  checkboxes={filterCheckboxes} onCheckboxChange={onCheckboxChange} setIsFormOpen={setIsFormOpen}/>
         </div>
         <div className='p-10 flex justify-center items-center flex-1 min-w-96'>
           <div className="flex flex-row flex-wrap gap-2.5 justify-center">
@@ -71,15 +71,16 @@ function App() {
             Personal Dashboard
           </h1>
         </header>
-        <button onClick={() => setIsFormOpen(true)} className='bg-yellow-500 text-white hover:bg-blue-600'>Abrir formulario</button>
         <div className ="mx-5 my-5">
           {taskBoard}
         </div>
-        {isFormOpen && <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-            <div className="bg-slate-800 p-5 rounded-lg shadow-lg w-96">
+        {isFormOpen && 
+          <div onClick={() => setIsFormOpen(false)} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+            <div onClick={(e) => e.stopPropagation()} className="bg-slate-800 p-5 rounded-lg shadow-lg w-96">
               <TaskForm onClose={() => setIsFormOpen(false)} addTask={addTask}/>
             </div>
-          </div>}
+          </div>
+        }
     </div>
   );
 }
