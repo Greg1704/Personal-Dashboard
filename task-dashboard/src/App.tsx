@@ -31,6 +31,14 @@ function App() {
     && (selectedCategories.length === 0 || ( task.categoryId && selectedCategories.includes(task.categoryId)))
   );
 
+  const pendingTasksCount = tasks.filter(task => !task.completed).length;
+  const completedTasksCount = tasks.filter(task => task.completed).length;
+
+  const categoryCounts = categories.map(category => ({
+    id: category.id,
+    count: tasks.filter(task => task.categoryId === category.id).length
+  }));
+
   function onCheckboxChange(id: string, checked: boolean) {
     const updatedCheckboxes = filterCheckboxes.map(checkbox =>
       checkbox.id === id ? { ...checkbox, checked } : checkbox
@@ -105,9 +113,10 @@ function App() {
       <div className="bg-slate-900 flex flex-row rounded-lg m-5 min-w-fit">
         <div className="bg-slate-700 w-1/5 p-10 rounded-l-lg min-w-64 border-r border-slate-600">          
           <Sidebar  searchTerm={searchTerm} onSearchChange={setSearchTerm}  
-                    checkboxes={filterCheckboxes} onCheckboxChange={onCheckboxChange} 
-                    categories={categories} onSelectedCategoriesChange={onSelectedCategoriesChange} selectedCategories={selectedCategories}
-                    setIsFormOpen={setIsFormOpen}/>
+                    checkboxes={filterCheckboxes} onCheckboxChange={onCheckboxChange} completedTasksCount={completedTasksCount} pendingTasksCount={pendingTasksCount}
+                    categories={categories} onSelectedCategoriesChange={onSelectedCategoriesChange} selectedCategories={selectedCategories} categoryTaskCounts={categoryCounts}
+                    setIsFormOpen={setIsFormOpen}
+          />
         </div>
         <div className='p-10 flex justify-center items-center flex-1 min-w-96'>
           <div className="flex flex-row flex-wrap gap-2.5 justify-center">
