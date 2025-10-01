@@ -53,6 +53,12 @@ export function Sidebar({searchTerm, onSearchChange, checkboxes, onCheckboxChang
                 <label key={category.id} className='flex items-center space-x-3 cursor-pointer'>
                     <input  type="checkbox" onChange={() => handleCategoryChange(category.id)} checked={selectedCategories.includes(category.id)} 
                             className='form-checkbox h-5 w-5 text-indigo-600 focus:ring-indigo-500' />
+                    <div 
+                        className="w-3 h-3 rounded-full" 
+                        style={{ 
+                            backgroundColor: category.color
+                        }}
+                    />
                     <span className='text-white'>{category.name}</span>
                 </label>
             ));
