@@ -38,12 +38,13 @@ function App() {
     setTasks(updatedTasks);
   }
 
-  function addTask(title: string, description: string) {
+  function addTask(title: string, description: string, categoryId: string) {
     const newTask = {
       id: crypto.randomUUID(),
       title,
       description,
-      completed: false
+      completed: false,
+      categoryId
     };
     setTasks([...tasks, newTask]);
   }
@@ -88,7 +89,7 @@ function App() {
         {isFormOpen && 
           <div onClick={() => setIsFormOpen(false)} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div onClick={(e) => e.stopPropagation()} className="bg-slate-800 p-5 rounded-lg shadow-lg w-96">
-              <TaskForm onClose={() => setIsFormOpen(false)} addTask={addTask}/>
+              <TaskForm onClose={() => setIsFormOpen(false)} addTask={addTask} categories={categories}/>
             </div>
           </div>
         }
