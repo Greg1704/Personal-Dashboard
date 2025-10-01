@@ -8,6 +8,7 @@ import {stateCheckboxes} from './data/stateCheckboxes';
 import {categories as categoryData} from './data/categories';
 import { type Task } from './types/Task';
 import { type TaskSubmitData } from './types/TaskSubmitData';
+import { ConfirmDialog } from './components/ConfirmDialog';
 
 function App() {
 
@@ -19,6 +20,7 @@ function App() {
   const [tasks, setTasks] = useState(taskData);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [taskToDelete, setTaskToDelete] = useState<string | null>(null); // ID de la tarea a eliminar
 
   const activeCheckboxes = filterCheckboxes.filter(checkbox => checkbox.checked).map(checkbox => checkbox.label);
 
@@ -65,11 +67,19 @@ function App() {
       setEditingTask(null);
     }
   }
+  
+  function requestRemoveTask(id: string) {
+    setTaskToDelete(id);
+  }
 
-  function removeTask(id: string) {
-    const updatedTasks = tasks.filter(task => task.id !== id);
-    setTasks(updatedTasks);
-    setEditingTask(null);
+  function removeTask() {
+    if(taskToDelete)
+    {  
+      const updatedTasks = tasks.filter(task => task.id !== taskToDelete);
+      setTasks(updatedTasks);
+      setEditingTask(null);
+      setTaskToDelete(null);
+    }
   }
 
   function openEditModal(task: Task) {
@@ -127,9 +137,19 @@ function App() {
         {editingTask && 
           <div onClick={() => setEditingTask(null)} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div onClick={(e) => e.stopPropagation()} className="bg-slate-800 p-5 rounded-lg shadow-lg w-96">
-              <TaskForm mode={'edit'} task={editingTask} onClose={() => setEditingTask(null)} onSubmit={addTask} onDelete={removeTask} categories={categories}/>
+              <TaskForm mode={'edit'} task={editingTask} onClose={() => setEditingTask(null)} onSubmit={addTask} onDelete={requestRemoveTask} categories={categories}/>
             </div>
           </div>
+        }
+        {taskToDelete &&
+          <ConfirmDialog  isOpen={true} 
+                          title='Confirm Deletion' 
+                          message='Are you sure you want to delete this task?' 
+                          onConfirm={removeTask} 
+                          onCancel={() => setTaskToDelete(null)} 
+                          confirmText='Delete' 
+                          cancelText='Cancel'
+            />
         }
     </div>
   );

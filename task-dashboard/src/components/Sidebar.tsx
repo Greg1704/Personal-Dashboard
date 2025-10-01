@@ -36,7 +36,7 @@ export function Sidebar({searchTerm, onSearchChange, checkboxes, onCheckboxChang
             if(!selectedCategories.find(catId => catId === categoryId)){
                 updatedCategories = [...selectedCategories.map(catId => catId), categoryId];
             } else {
-                updatedCategories = selectedCategories.filter(catId => catId !== categoryId).map(catId => catId);
+                updatedCategories = selectedCategories.filter(catId => catId !== categoryId);
             }
             onSelectedCategoriesChange(updatedCategories);
         }
