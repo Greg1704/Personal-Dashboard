@@ -7,6 +7,7 @@ import {tasks as taskData} from './data/tasks';
 import {stateCheckboxes} from './data/stateCheckboxes';
 import {categories as categoryData} from './data/categories';
 import { type Task } from './types/Task';
+import { type TaskSubmitData } from './types/TaskSubmitData';
 
 function App() {
 
@@ -46,15 +47,29 @@ function App() {
     setTasks(updatedTasks);
   }
 
-  function addTask(title: string, description: string, categoryId: string) {
-    const newTask = {
-      id: crypto.randomUUID(),
-      title,
-      description,
-      completed: false,
-      categoryId
-    };
-    setTasks([...tasks, newTask]);
+  function addTask({id, title, description, categoryId}: TaskSubmitData) {
+    if(!id){
+      const newTask = {
+        id: crypto.randomUUID(),
+        title,
+        description,
+        completed: false,
+        categoryId
+      };
+      setTasks([...tasks, newTask]);
+    }else{
+      const updatedTasks = tasks.map(task =>
+        task.id === id ? { ...task, title, description, categoryId } : task
+      );
+      setTasks(updatedTasks);
+      setEditingTask(null);
+    }
+  }
+
+  function removeTask(id: string) {
+    const updatedTasks = tasks.filter(task => task.id !== id);
+    setTasks(updatedTasks);
+    setEditingTask(null);
   }
 
   function openEditModal(task: Task) {
@@ -105,17 +120,14 @@ function App() {
         {isFormOpen && 
           <div onClick={() => setIsFormOpen(false)} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div onClick={(e) => e.stopPropagation()} className="bg-slate-800 p-5 rounded-lg shadow-lg w-96">
-              <TaskForm onClose={() => setIsFormOpen(false)} addTask={addTask} categories={categories}/>
+              <TaskForm mode={'create'} onClose={() => setIsFormOpen(false)} onSubmit={addTask} categories={categories}/>
             </div>
           </div>
         }
         {editingTask && 
           <div onClick={() => setEditingTask(null)} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div onClick={(e) => e.stopPropagation()} className="bg-slate-800 p-5 rounded-lg shadow-lg w-96">
-              <p className="text-white">Editing: {editingTask.title}</p>
-              <button onClick={() => setEditingTask(null)} className="bg-red-600 text-white px-4 py-2 rounded mt-4">
-                Close
-              </button>
+              <TaskForm mode={'edit'} task={editingTask} onClose={() => setEditingTask(null)} onSubmit={addTask} onDelete={removeTask} categories={categories}/>
             </div>
           </div>
         }

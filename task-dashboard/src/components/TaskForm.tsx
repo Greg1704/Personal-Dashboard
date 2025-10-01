@@ -1,40 +1,54 @@
 import { useState } from 'react';
 import {type Category} from '../types/Category';
+import { type Task } from '../types/Task';
+import { type TaskSubmitData } from '../types/TaskSubmitData';
 
 interface TaskFormProps {
+    mode: 'create' | 'edit';
+    task?: Task; // Solo necesario en modo 'edit'
     onClose: () => void;
-    addTask: (title: string, description: string, categoryId: string) => void;
+    onSubmit: (updatedTask: TaskSubmitData) => void;
+    onDelete?: (taskId: string) => void;
     categories: Category[];
 }
 
-export function TaskForm({onClose, addTask, categories}: TaskFormProps) {
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [selectedCategoryId, setSelectedCategoryId] = useState("");
+export function TaskForm({mode, task, onClose, onSubmit, onDelete, categories}: TaskFormProps) {
+    const [title, setTitle] = useState(task?.title || '');
+    const [description, setDescription] = useState(task?.description || '');
+    const [selectedCategoryId, setSelectedCategoryId] = useState(task?.categoryId || "");
 
     const isFormValid = title.trim() !== '';
 
-    function onSubmit(e: React.FormEvent){
+    const isEditing = mode === 'edit' && task && onDelete;
+
+    function handleTaskSubmit(e: React.FormEvent){
         e.preventDefault();
-        addTask(title, description,selectedCategoryId);
-        onClose();
-        setTitle('');
-        setDescription('');
-        setSelectedCategoryId("1");
+        onSubmit({
+            id: task?.id,
+            title,
+            description,
+            categoryId: selectedCategoryId
+        });
+        cancelForm();
+    }
+
+
+    function handleDelete(){
+            onDelete!(task!.id);
+            cancelForm();
     }
 
     function cancelForm(){
         onClose();
-        setTitle('');
-        setDescription('');
-        setSelectedCategoryId("1");
     }
 
 
     return(
         <div className='items-center flex flex-col'>
-            <h2 className='text-3xl font-bold text-gray-200 mb-2'>Create a new Task</h2>
-            <form className="bg-slate-700 flex flex-col gap-2 p-3 w-11/12 rounded-lg" onSubmit={onSubmit}>
+            <h2 className='text-3xl font-bold text-gray-200 mb-2'>
+                {mode === 'create' ? 'Create a new Task' : 'Edit Task'}
+            </h2>
+            <form className="bg-slate-700 flex flex-col gap-2 p-3 w-11/12 rounded-lg" onSubmit={handleTaskSubmit}>
                 <h3 className='text-2xl font-semibold text-gray-200 ml-2'>Title</h3>
                 <input  type="text" value={title} onChange={(e)=>setTitle(e.target.value)} 
                         placeholder='Enter task title'
@@ -60,21 +74,44 @@ export function TaskForm({onClose, addTask, categories}: TaskFormProps) {
                     </select>
                     <div 
                         className="w-6 h-6 rounded-full border-2 border-slate-400" 
-                        style={{ backgroundColor: categories.find(c => c.id === selectedCategoryId)?.color }}
+                        style={{ 
+                            backgroundColor: selectedCategoryId 
+                            ? categories.find(c => c.id === selectedCategoryId)?.color 
+                            : 'transparent' 
+                        }}
                     />
                 </div>
-                <button type="submit" 
+                {!isEditing? (
+                    <button type="submit" 
                         disabled={!isFormValid} 
                         className={`p-2 rounded font-semibold transition-colors ${
                             !isFormValid 
                             ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
                             : 'bg-indigo-600 text-white hover:bg-indigo-700'
                         }`}>
-                    Add Task
-                </button>
+                        Add Task
+                    </button>
+                ):(
+                    <>
+                        <button type="submit" 
+                            disabled={!isFormValid} 
+                            className={`p-2 rounded font-semibold transition-colors ${
+                                !isFormValid 
+                                ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
+                                : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                            }`}>
+                            Edit Task
+                        </button>
+                        <button type="button"
+                                onClick={handleDelete}
+                            className="p-2 rounded bg-red-600 text-white hover:bg-red-700 font-semibold">
+                            Delete Task
+                        </button>
+                    </>
+                )}
                 <button type="button" 
                         onClick={cancelForm}
-                        className="p-2 rounded bg-red-600 text-white hover:bg-red-700 font-semibold">
+                        className="p-2 rounded bg-slate-500 text-white hover:bg-slate-600 font-semibold">
                     Cancel
                 </button>
             </form>
