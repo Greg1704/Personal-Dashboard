@@ -1,6 +1,7 @@
 import { Search, Plus, ChevronDown } from 'lucide-react';
 import { type StateCheckbox } from '../types/StateCheckbox';
 import { useState } from 'react';
+import { type Category } from '../types/Category';
 
 interface SearchBarProps {
     searchTerm: string;
@@ -12,22 +13,49 @@ interface FilterCheckboxProps {
     onCheckboxChange: (id: string, checked: boolean) => void;
 }
 
+interface CategoryProps{
+    categories: Category[];
+    selectedCategories: string[];
+    onSelectedCategoriesChange: (categioriesIds: string[]) => void;
+}
+
 interface TaskFormProps{
     setIsFormOpen: (isOpen: boolean) => void;
 }
 
-interface SidebarProps extends SearchBarProps, FilterCheckboxProps, TaskFormProps {}
+interface SidebarProps extends SearchBarProps, FilterCheckboxProps, CategoryProps, TaskFormProps {}
 
-export function Sidebar({searchTerm, onSearchChange, checkboxes, onCheckboxChange, setIsFormOpen}: SidebarProps) {
+export function Sidebar({searchTerm, onSearchChange, checkboxes, onCheckboxChange, categories, onSelectedCategoriesChange, selectedCategories, setIsFormOpen}: SidebarProps) {
 
-    const [isStateFilterOpen, setIsStateFilterOpen] =  useState(true);
+    const [isStateFilterOpen, setIsStateFilterOpen] =  useState(false);
+    const [isCategoryFilterOpen, setIsCategoryFilterOpen] =  useState(false);
+
+    function handleCategoryChange(categoryId: string){
+        let updatedCategories: string[] = [];
+        if(categories.find(cat => cat.id === categoryId)){
+            if(!selectedCategories.find(catId => catId === categoryId)){
+                updatedCategories = [...selectedCategories.map(catId => catId), categoryId];
+            } else {
+                updatedCategories = selectedCategories.filter(catId => catId !== categoryId).map(catId => catId);
+            }
+            onSelectedCategoriesChange(updatedCategories);
+        }
+    }
 
     const stateCheckboxes = checkboxes.map((checkbox) => (
                 <label key={checkbox.id} className='flex items-center space-x-3 cursor-pointer'>
                     <input type="checkbox" onChange={(e) => onCheckboxChange(checkbox.id,e.target.checked)} checked={checkbox.checked} className='form-checkbox h-5 w-5 text-indigo-600 focus:ring-indigo-500' />
                     <span className='text-white'>{checkbox.label}</span>
                 </label>
-            )); 
+            ));
+            
+    const categoryCheckboxes = categories.map((category) => (
+                <label key={category.id} className='flex items-center space-x-3 cursor-pointer'>
+                    <input  type="checkbox" onChange={() => handleCategoryChange(category.id)} checked={selectedCategories.includes(category.id)} 
+                            className='form-checkbox h-5 w-5 text-indigo-600 focus:ring-indigo-500' />
+                    <span className='text-white'>{category.name}</span>
+                </label>
+            ));
 
     return(
         <>
@@ -49,19 +77,34 @@ export function Sidebar({searchTerm, onSearchChange, checkboxes, onCheckboxChang
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"
                 />
             </div>
-            <button onClick={() => setIsStateFilterOpen(!isStateFilterOpen)} 
-                    className={`w-full px-4 py-2 border border-slate-500 bg-slate-600 text-white flex items-center justify-between hover:bg-slate-700 transition-colors
-                        ${isStateFilterOpen ? 'rounded-t-lg' : 'rounded-lg'}
-                    `}>
-                <span>Status Filter</span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${isStateFilterOpen ? 'rotate-180' : ''}`} />
-            </button>
-            {isStateFilterOpen && (
-                <div className="p-3 border border-t-0 border-slate-500 bg-slate-700 rounded-b-lg flex flex-col gap-2">
-                    {stateCheckboxes}
-                </div>
-            )}
-            <h2 className="text-xl font-semibold text-white text-center p-3">Buscador de filtro de categoría</h2>
+            <div className='mb-4'>
+                <button onClick={() => setIsStateFilterOpen(!isStateFilterOpen)} 
+                        className={`w-full px-4 py-2 border border-slate-500 bg-slate-600 text-white flex items-center justify-between hover:bg-slate-700 transition-colors
+                            ${isStateFilterOpen ? 'rounded-t-lg' : 'rounded-lg'}
+                        `}>
+                    <span>Status Filter</span>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${isStateFilterOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {isStateFilterOpen && (
+                    <div className="p-3 border border-t-0 border-slate-500 bg-slate-700 rounded-b-lg flex flex-col gap-2">
+                        {stateCheckboxes}
+                    </div>
+                )}
+            </div>
+            <div className='mb-4'>
+                <button onClick={() => setIsCategoryFilterOpen(!isCategoryFilterOpen)} 
+                        className={`w-full px-4 py-2 border border-slate-500 bg-slate-600 text-white flex items-center justify-between hover:bg-slate-700 transition-colors
+                            ${isCategoryFilterOpen ? 'rounded-t-lg' : 'rounded-lg'}
+                        `}>
+                    <span>Category Filter</span>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${isCategoryFilterOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {isCategoryFilterOpen && (
+                    <div className="p-3 border border-t-0 border-slate-500 bg-slate-700 rounded-b-lg flex flex-col gap-2">
+                        {categoryCheckboxes}
+                    </div>
+                )}
+            </div>
         </>
     )
 }

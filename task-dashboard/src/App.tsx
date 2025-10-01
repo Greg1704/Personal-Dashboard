@@ -12,6 +12,7 @@ function App() {
   //state variables
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCheckboxes, setFilterCheckboxes] = useState(stateCheckboxes);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [categories, setCategories] = useState(categoryData);
   const [tasks, setTasks] = useState(taskData);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -19,9 +20,10 @@ function App() {
   const activeCheckboxes = filterCheckboxes.filter(checkbox => checkbox.checked).map(checkbox => checkbox.label);
 
   const filteredTasks = tasks.filter(task =>
-    (task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    task.description?.toLowerCase().includes(searchTerm.toLowerCase()))
+    (task.title.toLowerCase().includes(searchTerm.toLowerCase()) 
+    || task.description?.toLowerCase().includes(searchTerm.toLowerCase()))
     && (activeCheckboxes.length === 0 || activeCheckboxes.includes(task.completed ? 'Completed' : 'Pending'))
+    && (selectedCategories.length === 0 || ( task.categoryId && selectedCategories.includes(task.categoryId)))
   );
 
   function onCheckboxChange(id: string, checked: boolean) {
@@ -29,6 +31,10 @@ function App() {
       checkbox.id === id ? { ...checkbox, checked } : checkbox
     );
     setFilterCheckboxes(updatedCheckboxes);
+  }
+
+  function onSelectedCategoriesChange(categioriesIds: string[]) {
+    setSelectedCategories(categioriesIds);
   }
 
   function onTaskStatusChange(id: string, completed: boolean) {
@@ -66,7 +72,10 @@ function App() {
   const taskBoard = (
       <div className="bg-slate-900 flex flex-row rounded-lg m-5 min-w-fit">
         <div className="bg-slate-700 w-1/5 p-10 rounded-l-lg min-w-64 border-r border-slate-600">          
-          <Sidebar searchTerm={searchTerm} onSearchChange={setSearchTerm}  checkboxes={filterCheckboxes} onCheckboxChange={onCheckboxChange} setIsFormOpen={setIsFormOpen}/>
+          <Sidebar  searchTerm={searchTerm} onSearchChange={setSearchTerm}  
+                    checkboxes={filterCheckboxes} onCheckboxChange={onCheckboxChange} 
+                    categories={categories} onSelectedCategoriesChange={onSelectedCategoriesChange} selectedCategories={selectedCategories}
+                    setIsFormOpen={setIsFormOpen}/>
         </div>
         <div className='p-10 flex justify-center items-center flex-1 min-w-96'>
           <div className="flex flex-row flex-wrap gap-2.5 justify-center">
