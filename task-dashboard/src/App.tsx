@@ -6,6 +6,7 @@ import { TaskForm } from './components/TaskForm';
 import {tasks as taskData} from './data/tasks';
 import {stateCheckboxes} from './data/stateCheckboxes';
 import {categories as categoryData} from './data/categories';
+import { type Task } from './types/Task';
 
 function App() {
 
@@ -16,6 +17,7 @@ function App() {
   const [categories, setCategories] = useState(categoryData);
   const [tasks, setTasks] = useState(taskData);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const activeCheckboxes = filterCheckboxes.filter(checkbox => checkbox.checked).map(checkbox => checkbox.label);
 
@@ -55,6 +57,10 @@ function App() {
     setTasks([...tasks, newTask]);
   }
 
+  function openEditModal(task: Task) {
+    setEditingTask(task);
+  }
+
   
   const taskList = filteredTasks.map((task) => {
     const category = categories.find((cat) => cat.id === task.categoryId);
@@ -65,6 +71,7 @@ function App() {
         onStatusChange={onTaskStatusChange} 
         color={category?.color}
         categoryName={category?.name}
+        onTaskClick={openEditModal}
       />
     );
   });
@@ -99,6 +106,16 @@ function App() {
           <div onClick={() => setIsFormOpen(false)} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div onClick={(e) => e.stopPropagation()} className="bg-slate-800 p-5 rounded-lg shadow-lg w-96">
               <TaskForm onClose={() => setIsFormOpen(false)} addTask={addTask} categories={categories}/>
+            </div>
+          </div>
+        }
+        {editingTask && 
+          <div onClick={() => setEditingTask(null)} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div onClick={(e) => e.stopPropagation()} className="bg-slate-800 p-5 rounded-lg shadow-lg w-96">
+              <p className="text-white">Editing: {editingTask.title}</p>
+              <button onClick={() => setEditingTask(null)} className="bg-red-600 text-white px-4 py-2 rounded mt-4">
+                Close
+              </button>
             </div>
           </div>
         }
