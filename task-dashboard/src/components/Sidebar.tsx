@@ -12,6 +12,7 @@ interface SearchBarProps {
 interface FilterCheckboxProps {
     checkboxes: StateCheckbox[];
     onCheckboxChange: (id: string, checked: boolean) => void;
+    onClearAllStateCheckboxes: () => void;
     completedTasksCount?: number;
     pendingTasksCount?: number;
 }
@@ -31,7 +32,7 @@ interface SidebarProps extends SearchBarProps, FilterCheckboxProps, CategoryProp
 
 export function Sidebar({
             searchTerm, onSearchChange, 
-            checkboxes, onCheckboxChange, completedTasksCount, pendingTasksCount, 
+            checkboxes, onCheckboxChange, onClearAllStateCheckboxes, completedTasksCount, pendingTasksCount, 
             categories, onSelectedCategoriesChange, selectedCategories, categoryTaskCounts, 
             setIsFormOpen
 }: SidebarProps) {
@@ -49,6 +50,11 @@ export function Sidebar({
             }
             onSelectedCategoriesChange(updatedCategories);
         }
+    }
+
+    function clearAll(){
+        onClearAllStateCheckboxes();
+        onSelectedCategoriesChange([]);
     }
 
     const stateCheckboxes = checkboxes.map((checkbox) => (
@@ -101,6 +107,16 @@ export function Sidebar({
                 />
                 <Search 
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"
+                />
+            </div>
+            <div className="w-full max-w-md mx-auto mb-6 relative">
+                <ActiveFilters 
+                    checkboxes={checkboxes} 
+                    onCheckboxChange={onCheckboxChange} 
+                    categories={categories} 
+                    selectedCategories={selectedCategories}
+                    onCategoryChange={handleCategoryChange}
+                    onClearAll={clearAll}
                 />
             </div>
             <div className='mb-4'>

@@ -114,6 +114,10 @@ function App() {
         <div className="bg-slate-700 w-1/5 p-10 rounded-l-lg min-w-64 border-r border-slate-600">          
           <Sidebar  searchTerm={searchTerm} onSearchChange={setSearchTerm}  
                     checkboxes={filterCheckboxes} onCheckboxChange={onCheckboxChange} completedTasksCount={completedTasksCount} pendingTasksCount={pendingTasksCount}
+                    onClearAllStateCheckboxes={() => {
+                      const updatedCheckboxes = filterCheckboxes.map(checkbox => ({...checkbox, checked: false}));
+                      setFilterCheckboxes(updatedCheckboxes);
+                    }}
                     categories={categories} onSelectedCategoriesChange={onSelectedCategoriesChange} selectedCategories={selectedCategories} categoryTaskCounts={categoryCounts}
                     setIsFormOpen={setIsFormOpen}
           />
