@@ -9,6 +9,7 @@ import {categories as categoryData} from './data/categories';
 import { type Task } from './types/Task';
 import { type TaskSubmitData } from './types/TaskSubmitData';
 import { ConfirmDialog } from './components/ConfirmDialog';
+import toast, { Toaster } from 'react-hot-toast';
 
 function App() {
 
@@ -67,12 +68,14 @@ function App() {
         categoryId
       };
       setTasks([...tasks, newTask]);
+      toast.success('Task created successfully');
     }else{
       const updatedTasks = tasks.map(task =>
         task.id === id ? { ...task, title, description, categoryId } : task
       );
       setTasks(updatedTasks);
       setEditingTask(null);
+      toast.success('Task updated successfully');
     }
   }
   
@@ -87,6 +90,7 @@ function App() {
       setTasks(updatedTasks);
       setEditingTask(null);
       setTaskToDelete(null);
+      toast.success('Task deleted successfully');
     }
   }
 
@@ -124,47 +128,50 @@ function App() {
         </div>
         <div className='p-10 flex justify-center items-center flex-1 min-w-96'>
           <div className="flex flex-row flex-wrap gap-2.5 justify-center">
-            {taskList}
+            {taskList.length > 0 ? taskList : <p className='text-white text-4xl'>No tasks found</p>}
           </div>
         </div>
       </div>
   );
 
   return (
-    <div className='min-h-screen bg-gradient-to-b from-slate-800 to-slate-900'>
-        <header>
-          <h1 className="text-4xl font-bold text-white text-center p-5 bg-indigo-600">
-            Personal Dashboard
-          </h1>
-        </header>
-        <div className ="mx-5 my-5">
-          {taskBoard}
-        </div>
-        {isFormOpen && 
-          <div onClick={() => setIsFormOpen(false)} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div onClick={(e) => e.stopPropagation()} className="bg-slate-800 p-5 rounded-lg shadow-lg w-96">
-              <TaskForm mode={'create'} onClose={() => setIsFormOpen(false)} onSubmit={addTask} categories={categories}/>
-            </div>
+    <>
+      <Toaster position="top-right" reverseOrder={false} />
+      <div className='min-h-screen bg-gradient-to-b from-slate-800 to-slate-900'>
+          <header>
+            <h1 className="text-4xl font-bold text-white text-center p-5 bg-indigo-600">
+              Personal Dashboard
+            </h1>
+          </header>
+          <div className ="mx-5 my-5">
+            {taskBoard}
           </div>
-        }
-        {editingTask && 
-          <div onClick={() => setEditingTask(null)} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div onClick={(e) => e.stopPropagation()} className="bg-slate-800 p-5 rounded-lg shadow-lg w-96">
-              <TaskForm mode={'edit'} task={editingTask} onClose={() => setEditingTask(null)} onSubmit={addTask} onDelete={requestRemoveTask} categories={categories}/>
+          {isFormOpen && 
+            <div onClick={() => setIsFormOpen(false)} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+              <div onClick={(e) => e.stopPropagation()} className="bg-slate-800 p-5 rounded-lg shadow-lg w-96">
+                <TaskForm mode={'create'} onClose={() => setIsFormOpen(false)} onSubmit={addTask} categories={categories}/>
+              </div>
             </div>
-          </div>
-        }
-        {taskToDelete &&
-          <ConfirmDialog  isOpen={true} 
-                          title='Confirm Deletion' 
-                          message='Are you sure you want to delete this task?' 
-                          onConfirm={removeTask} 
-                          onCancel={() => setTaskToDelete(null)} 
-                          confirmText='Delete' 
-                          cancelText='Cancel'
-            />
-        }
-    </div>
+          }
+          {editingTask && 
+            <div onClick={() => setEditingTask(null)} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+              <div onClick={(e) => e.stopPropagation()} className="bg-slate-800 p-5 rounded-lg shadow-lg w-96">
+                <TaskForm mode={'edit'} task={editingTask} onClose={() => setEditingTask(null)} onSubmit={addTask} onDelete={requestRemoveTask} categories={categories}/>
+              </div>
+            </div>
+          }
+          {taskToDelete &&
+            <ConfirmDialog  isOpen={true} 
+                            title='Confirm Deletion' 
+                            message='Are you sure you want to delete this task?' 
+                            onConfirm={removeTask} 
+                            onCancel={() => setTaskToDelete(null)} 
+                            confirmText='Delete' 
+                            cancelText='Cancel'
+              />
+          }
+      </div>
+    </>
   );
 }
 

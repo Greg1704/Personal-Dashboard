@@ -12,7 +12,8 @@ export function TaskCard({ task, onStatusChange, color, categoryName, onTaskClic
   return (
     <div 
       onClick={() => onTaskClick(task)}
-      className="w-72 h-64 rounded-lg shadow-lg flex flex-col bg-slate-600 border-l-4"
+      className="w-72 h-64 rounded-lg shadow-lg flex flex-col bg-slate-600 border-l-4 
+                cursor-pointer transition-all duration-200 hover:shadow-2xl hover:-translate-y-1"
       style={{ borderLeftColor: color || '#64748b' }} // slate-500 por defecto
     >
       <div className='p-3'>
