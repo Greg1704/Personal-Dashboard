@@ -124,6 +124,7 @@ function App() {
                     }}
                     categories={categories} onSelectedCategoriesChange={onSelectedCategoriesChange} selectedCategories={selectedCategories} categoryTaskCounts={categoryCounts}
                     setIsFormOpen={setIsFormOpen}
+                    filteredTasksCount={filteredTasks.length}
           />
         </div>
         <div className='p-10 flex justify-center items-center flex-1 min-w-96'>

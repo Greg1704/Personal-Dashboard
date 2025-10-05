@@ -28,13 +28,15 @@ interface TaskFormProps{
     setIsFormOpen: (isOpen: boolean) => void;
 }
 
-interface SidebarProps extends SearchBarProps, FilterCheckboxProps, CategoryProps, TaskFormProps {}
+interface SidebarProps extends SearchBarProps, FilterCheckboxProps, CategoryProps, TaskFormProps {
+    filteredTasksCount: number;
+}
 
 export function Sidebar({
             searchTerm, onSearchChange, 
             checkboxes, onCheckboxChange, onClearAllStateCheckboxes, completedTasksCount, pendingTasksCount, 
             categories, onSelectedCategoriesChange, selectedCategories, categoryTaskCounts, 
-            setIsFormOpen
+            setIsFormOpen, filteredTasksCount
 }: SidebarProps) {
 
     const [isStateFilterOpen, setIsStateFilterOpen] =  useState(false);
@@ -117,6 +119,8 @@ export function Sidebar({
                     selectedCategories={selectedCategories}
                     onCategoryChange={handleCategoryChange}
                     onClearAll={clearAll}
+                    filteredTasksCount={filteredTasksCount}
+                    allTasksCount={completedTasksCount! + pendingTasksCount!}
                 />
             </div>
             <div className='mb-4'>

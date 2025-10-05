@@ -9,9 +9,11 @@ interface ActiveFiltersProps{
     selectedCategories: string[];
     onCategoryChange: (categoryId: string) => void;
     onClearAll: () => void;
+    filteredTasksCount: number;
+    allTasksCount: number;
 }
 
-export function ActiveFilters({checkboxes, onCheckboxChange, categories, selectedCategories, onCategoryChange, onClearAll}: ActiveFiltersProps) {
+export function ActiveFilters({checkboxes, onCheckboxChange, categories, selectedCategories, onCategoryChange, onClearAll, filteredTasksCount, allTasksCount}: ActiveFiltersProps) {
     
     const checkboxTags = checkboxes.filter(checkbox => checkbox.checked).map((checkbox) => (
         <span key={checkbox.id} className='bg-indigo-600 text-white px-4 py-1 rounded-full text-xs font-medium flex items-center space-x-2  mr-2 mb-2'>
@@ -41,6 +43,7 @@ export function ActiveFilters({checkboxes, onCheckboxChange, categories, selecte
                 <h3 className='text-white font-semibold'>Active Filters</h3>
                 <button onClick={onClearAll} className='text-sm text-indigo-200 hover:text-white'>Clear All</button>
             </div>
+            <span className='text-white text-sm mb-2 block'>Showing {filteredTasksCount} of {allTasksCount} tasks</span>
             <div className='flex flex-row flex-wrap justify-start'>
                 {checkboxTags}
                 {categoryTags}
