@@ -1,5 +1,5 @@
 // src/App.tsx
-import { useState } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import { TaskCard } from './components/TaskCard';
 import { Sidebar } from './components/Sidebar';
 import { TaskForm } from './components/TaskForm';
@@ -25,6 +25,11 @@ function App() {
 
   //state variables for animation
   const [removingTasks, setRemovingTasks] = useState<Set<string>>(new Set());
+  const [enteringTasks, setEnteringTasks] = useState<Set<string>>(new Set());
+  const [exitingTasks, setExitingTasks] = useState<Set<string>>(new Set());
+
+  // Ref to store the previous filtered tasks
+  const prevFilteredTasksRef = useRef<Task[]>([]);
 
   const activeCheckboxes = filterCheckboxes.filter(checkbox => checkbox.checked).map(checkbox => checkbox.label);
 
@@ -42,6 +47,69 @@ function App() {
     id: category.id,
     count: tasks.filter(task => task.categoryId === category.id).length
   }));
+
+  //Use Memo Hooks
+
+  const {tasksToRenderWithAnimations, newEnteringTasks, newExitingTasks} = useMemo(() => {
+    const prevIds = new Set(prevFilteredTasksRef.current.map(task => task.id));
+    const currentIds = new Set(filteredTasks.map(task => task.id));
+
+    const tasksExiting = prevFilteredTasksRef.current.filter(
+      task => !currentIds.has(task.id) && !removingTasks.has(task.id)
+    )
+
+    const tasksEntering = filteredTasks.filter(
+      task => !prevIds.has(task.id) && !removingTasks.has(task.id)
+    );
+
+    const tasksToRender = tasks.filter(task =>
+      currentIds.has(task.id) 
+      || removingTasks.has(task.id)
+      || exitingTasks.has(task.id)
+      || tasksExiting.some(te => te.id === task.id)
+    );
+
+    return {tasksToRenderWithAnimations: tasksToRender, newEnteringTasks: tasksEntering, newExitingTasks: tasksExiting};
+
+  },[filteredTasks, tasks, exitingTasks, removingTasks]);
+
+  //Use Effect Hooks
+  // Effect to handle exiting animation for tasks on filter change
+  useEffect(() => {
+    if (newExitingTasks.length > 0) {
+      setExitingTasks(prev => {
+        const newSet = new Set(prev);
+        newExitingTasks.forEach(task => newSet.add(task.id));
+        return newSet;
+      });
+
+      setTimeout(() => {
+        setExitingTasks(prev => {
+          const newSet = new Set(prev);
+          newExitingTasks.forEach(task => newSet.delete(task.id));
+          return newSet;
+        });
+      }, 500);
+    }
+
+    if (newEnteringTasks.length > 0) {
+      setEnteringTasks(prev => {
+        const newSet = new Set(prev);
+        newEnteringTasks.forEach(task => newSet.add(task.id));
+        return newSet;
+      });
+
+      setTimeout(() => {
+        setEnteringTasks(prev => {
+          const newSet = new Set(prev);
+          newEnteringTasks.forEach(task => newSet.delete(task.id));
+          return newSet;
+        });
+      }, 600);
+    }
+
+    prevFilteredTasksRef.current = filteredTasks;
+  }, [filteredTasks, newExitingTasks, newEnteringTasks]);
 
   function onCheckboxChange(id: string, checked: boolean) {
     const updatedCheckboxes = filterCheckboxes.map(checkbox =>
@@ -114,9 +182,11 @@ function App() {
     setEditingTask(task);
   }
 
-  
-  const taskList = filteredTasks.map((task) => {
+  const taskList = tasksToRenderWithAnimations.map((task) => {
     const category = categories.find((cat) => cat.id === task.categoryId);
+    const isRemoving = removingTasks.has(task.id);
+    const isExiting = exitingTasks.has(task.id) || newExitingTasks.some(te => te.id === task.id);
+    const isEntering = enteringTasks.has(task.id) || newEnteringTasks.some(te => te.id === task.id);
     return (
       <TaskCard 
         key={task.id} 
@@ -125,7 +195,8 @@ function App() {
         color={category?.color}
         categoryName={category?.name}
         onTaskClick={openEditModal}
-        isRemoving = {removingTasks.has(task.id)}
+        isRemoving = {isRemoving || isExiting}
+        isEntering = {isEntering}
       />
     );
   });
