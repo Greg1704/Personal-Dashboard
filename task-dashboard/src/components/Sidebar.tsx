@@ -125,31 +125,43 @@ export function Sidebar({
             </div>
             <div className='mb-4'>
                 <button onClick={() => setIsStateFilterOpen(!isStateFilterOpen)} 
-                        className={`w-full px-4 py-2 border border-slate-500 bg-slate-600 text-white flex items-center justify-between hover:bg-slate-700 transition-colors
-                            ${isStateFilterOpen ? 'rounded-t-lg' : 'rounded-lg'}
+                        className={`w-full px-4 py-2 border border-slate-500 bg-slate-600 text-white flex items-center justify-between hover:bg-slate-700 
+                                    transition-all duration-300 ${isStateFilterOpen ? 'rounded-t-lg' : 'rounded-lg'}
                         `}>
                     <span>Status Filter</span>
-                    <ChevronDown className={`w-4 h-4 transition-transform ${isStateFilterOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isStateFilterOpen ? 'rotate-180' : ''}`} />
                 </button>
-                {isStateFilterOpen && (
-                    <div className="p-3 border border-t-0 border-slate-500 bg-slate-700 rounded-b-lg flex flex-col gap-2">
+                <div
+                    className={`overflow-hidden transition-all duration-300 ease-in-out border-x border-slate-500 ${
+                                isStateFilterOpen 
+                                    ? 'max-h-96 border-b border-slate-500 rounded-b-lg p-3 opacity-100' 
+                                    : 'max-h-0 border-b-0 p-0 opacity-0'
+                                }`}
+                >
+                    <div className="flex flex-col gap-2">
                         {stateCheckboxes}
                     </div>
-                )}
+                </div>
             </div>
             <div className='mb-4'>
                 <button onClick={() => setIsCategoryFilterOpen(!isCategoryFilterOpen)} 
-                        className={`w-full px-4 py-2 border border-slate-500 bg-slate-600 text-white flex items-center justify-between hover:bg-slate-700 transition-colors
-                            ${isCategoryFilterOpen ? 'rounded-t-lg' : 'rounded-lg'}
+                        className={`w-full px-4 py-2 border border-slate-500 bg-slate-600 text-white flex items-center justify-between hover:bg-slate-700 
+                                    transition-all duration-300 ${isCategoryFilterOpen ? 'rounded-t-lg' : 'rounded-lg'}
                         `}>
                     <span>Category Filter</span>
-                    <ChevronDown className={`w-4 h-4 transition-transform ${isCategoryFilterOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isCategoryFilterOpen ? 'rotate-180' : ''}`} />
                 </button>
-                {isCategoryFilterOpen && (
-                    <div className="p-3 border border-t-0 border-slate-500 bg-slate-700 rounded-b-lg flex flex-col gap-2">
+                <div
+                    className={`overflow-hidden transition-all duration-300 ease-in-out border-x border-slate-500 ${
+                                isCategoryFilterOpen 
+                                    ? 'max-h-96 border-b border-slate-500 rounded-b-lg p-3 opacity-100' 
+                                    : 'max-h-0 border-b-0 p-0 opacity-0'
+                                }`}
+                >
+                    <div className="flex flex-col gap-2">
                         {categoryCheckboxes}
                     </div>
-                )}
+                </div>
             </div>
         </>
     )

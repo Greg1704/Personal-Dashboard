@@ -22,6 +22,8 @@ function App() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null); // ID de la tarea a eliminar
+
+  //state variables for animation
   const [removingTasks, setRemovingTasks] = useState<Set<string>>(new Set());
 
   const activeCheckboxes = filterCheckboxes.filter(checkbox => checkbox.checked).map(checkbox => checkbox.label);
