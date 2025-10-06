@@ -43,12 +43,45 @@ export default {
             opacity: '0',
           },
         },
+        modalEnter: {
+          from: {
+            opacity: '0',
+            transform: 'scale(0.95)',
+          },
+          to: {
+            opacity: '1',
+            transform: 'scale(1)',
+          },
+        },
+        modalExit: {
+          to: {
+            opacity: '0',
+            transform: 'scale(0.95)',
+          },
+        },
+        backdropEnter: {
+          from: {
+            opacity: '0',
+          },
+          to: {
+            opacity: '1',
+          },
+        },
+        backdropExit: {
+          to: {
+            opacity: '0',
+          },
+        },
       },
       animation: {
         flipIn: 'flipIn 0.6s ease-out',
         flipOut: 'flipOut 0.5s ease-in forwards',
         slideDown: 'slideDown 0.3s ease-out',
         slideUp: 'slideUp 0.3s ease-out',
+        modalEnter: 'modalEnter 0.4s ease-out',
+        modalExit: 'modalExit 0.3s ease-in forwards',
+        backdropEnter: 'backdropEnter 0.4s ease-out',
+        backdropExit: 'backdropExit 0.3s ease-in forwards',
       },
     },
   },

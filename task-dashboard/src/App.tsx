@@ -20,7 +20,9 @@ function App() {
   const [categories, setCategories] = useState(categoryData);
   const [tasks, setTasks] = useState(taskData);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isFormClosing, setIsFormClosing] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [isEditFormClosing, setIsEditFormClosing] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null); // ID de la tarea a eliminar
 
   //state variables for animation
@@ -110,6 +112,8 @@ function App() {
 
     prevFilteredTasksRef.current = filteredTasks;
   }, [filteredTasks, newExitingTasks, newEnteringTasks]);
+
+  // Functions
 
   function onCheckboxChange(id: string, checked: boolean) {
     const updatedCheckboxes = filterCheckboxes.map(checkbox =>
@@ -201,6 +205,23 @@ function App() {
     );
   });
 
+  //Functions to close TaskForm with animation
+  function closeCreateForm() {
+    setIsFormClosing(true);
+    setTimeout(() => {
+      setIsFormOpen(false);
+      setIsFormClosing(false);
+    }, 300);
+  }
+
+  function closeEditForm() {
+    setIsEditFormClosing(true);
+    setTimeout(() => {
+      setEditingTask(null);
+      setIsEditFormClosing(false);
+    }, 300);
+  }
+
   const taskBoard = (
       <div className="bg-slate-900 flex flex-row rounded-lg m-5 min-w-fit">
         <div className="bg-slate-700 w-1/5 p-10 rounded-l-lg min-w-64 border-r border-slate-600">          
@@ -236,16 +257,20 @@ function App() {
             {taskBoard}
           </div>
           {isFormOpen && 
-            <div onClick={() => setIsFormOpen(false)} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-              <div onClick={(e) => e.stopPropagation()} className="bg-slate-800 p-5 rounded-lg shadow-lg w-96">
-                <TaskForm mode={'create'} onClose={() => setIsFormOpen(false)} onSubmit={addTask} categories={categories}/>
+            <div onClick={() => setIsFormOpen(false)} className={`fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50
+                                                                  ${isFormClosing ? 'animate-backdropExit' : 'animate-backdropEnter'}`}
+            >
+              <div onClick={(e) => e.stopPropagation()} className={`bg-slate-800 p-5 rounded-lg shadow-lg w-96 ${isFormClosing ? 'animate-modalExit' : 'animate-modalEnter'}`}>
+                <TaskForm mode={'create'} onClose={closeCreateForm} onSubmit={addTask} categories={categories}/>
               </div>
             </div>
           }
           {editingTask && 
-            <div onClick={() => setEditingTask(null)} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-              <div onClick={(e) => e.stopPropagation()} className="bg-slate-800 p-5 rounded-lg shadow-lg w-96">
-                <TaskForm mode={'edit'} task={editingTask} onClose={() => setEditingTask(null)} onSubmit={addTask} onDelete={requestRemoveTask} categories={categories}/>
+            <div onClick={() => setEditingTask(null)} className={`fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50
+                                                                  ${isEditFormClosing ? 'animate-backdropExit' : 'animate-backdropEnter'}`}
+            >
+              <div onClick={(e) => e.stopPropagation()} className={`bg-slate-800 p-5 rounded-lg shadow-lg w-96 ${isFormClosing ? 'animate-modalExit' : 'animate-modalEnter'}`}>
+                <TaskForm mode={'edit'} task={editingTask} onClose={closeEditForm} onSubmit={addTask} onDelete={requestRemoveTask} categories={categories}/>
               </div>
             </div>
           }
