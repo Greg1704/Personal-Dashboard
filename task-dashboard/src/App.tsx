@@ -10,7 +10,6 @@ import { type Task } from './types/Task';
 import { type TaskSubmitData } from './types/TaskSubmitData';
 import { ConfirmDialog } from './components/ConfirmDialog';
 import toast, { Toaster } from 'react-hot-toast';
-import { set } from 'date-fns';
 
 function App() {
 
@@ -90,14 +89,18 @@ function App() {
     {  
       setRemovingTasks(new Set(removingTasks).add(taskToDelete));
 
+      const taskToDeleteId = taskToDelete;
+      setTaskToDelete(null);
+
+
       setTimeout(() => {
-        const updatedTasks = tasks.filter(task => task.id !== taskToDelete);
+        const updatedTasks = tasks.filter(task => task.id !== taskToDeleteId);
         setTasks(updatedTasks);
         setEditingTask(null);
-        setTaskToDelete(null);
+        //setTaskToDelete(null);
         setRemovingTasks(prev => {
           const newSet = new Set(prev);
-          newSet.delete(taskToDelete!);
+          newSet.delete(taskToDeleteId!);
           return newSet;
         });
       }, 500); 
@@ -120,6 +123,7 @@ function App() {
         color={category?.color}
         categoryName={category?.name}
         onTaskClick={openEditModal}
+        isRemoving = {removingTasks.has(task.id)}
       />
     );
   });
