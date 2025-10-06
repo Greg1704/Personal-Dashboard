@@ -15,7 +15,7 @@ interface TaskFormProps {
 export function TaskForm({mode, task, onClose, onSubmit, onDelete, categories}: TaskFormProps) {
     const [title, setTitle] = useState(task?.title || '');
     const [description, setDescription] = useState(task?.description || '');
-    const [selectedCategoryId, setSelectedCategoryId] = useState(task?.categoryId || "");
+    const [selectedCategoryId, setSelectedCategoryId] = useState(task?.categoryId || "0");
 
     const isFormValid = title.trim() !== '';
 
@@ -67,7 +67,6 @@ export function TaskForm({mode, task, onClose, onSubmit, onDelete, categories}: 
                     onChange={(e) => setSelectedCategoryId(e.target.value)}
                     className="flex-1 px-2 py-1 border border-slate-400 bg-slate-200 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     >
-                    <option value="">Sin categoría</option>
                     {categories.map(cat => (
                         <option key={cat.id} value={cat.id}>{cat.name}</option>
                     ))}

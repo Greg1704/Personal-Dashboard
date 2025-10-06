@@ -10,6 +10,7 @@ import { type Task } from './types/Task';
 import { type TaskSubmitData } from './types/TaskSubmitData';
 import { ConfirmDialog } from './components/ConfirmDialog';
 import toast, { Toaster } from 'react-hot-toast';
+import { set } from 'date-fns';
 
 function App() {
 
@@ -22,6 +23,7 @@ function App() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null); // ID de la tarea a eliminar
+  const [removingTasks, setRemovingTasks] = useState<Set<string>>(new Set());
 
   const activeCheckboxes = filterCheckboxes.filter(checkbox => checkbox.checked).map(checkbox => checkbox.label);
 
@@ -86,10 +88,19 @@ function App() {
   function removeTask() {
     if(taskToDelete)
     {  
-      const updatedTasks = tasks.filter(task => task.id !== taskToDelete);
-      setTasks(updatedTasks);
-      setEditingTask(null);
-      setTaskToDelete(null);
+      setRemovingTasks(new Set(removingTasks).add(taskToDelete));
+
+      setTimeout(() => {
+        const updatedTasks = tasks.filter(task => task.id !== taskToDelete);
+        setTasks(updatedTasks);
+        setEditingTask(null);
+        setTaskToDelete(null);
+        setRemovingTasks(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(taskToDelete!);
+          return newSet;
+        });
+      }, 500); 
       toast.success('Task deleted successfully');
     }
   }

@@ -6,14 +6,15 @@ interface TaskCardProps {
   color?: string;
   categoryName?: string;
   onTaskClick: (task: Task) => void;
+  isRemoving?: boolean;
 }
 
-export function TaskCard({ task, onStatusChange, color, categoryName, onTaskClick }: TaskCardProps) {
+export function TaskCard({ task, onStatusChange, color, categoryName, onTaskClick, isRemoving }: TaskCardProps) {
   return (
     <div 
       onClick={() => onTaskClick(task)}
-      className="w-72 h-64 rounded-lg shadow-lg flex flex-col bg-slate-600 border-l-4 
-                cursor-pointer transition-all duration-200 hover:shadow-2xl hover:-translate-y-1"
+      className={`w-72 h-64 rounded-lg shadow-lg flex flex-col bg-slate-600 border-l-4 
+                cursor-pointer transition-all duration-200 hover:shadow-2xl hover:-translate-y-1 ${isRemoving ? 'animate-flipOut': 'animate-flipIn'}`}
       style={{ borderLeftColor: color || '#64748b' }} // slate-500 por defecto
     >
       <div className='p-3'>

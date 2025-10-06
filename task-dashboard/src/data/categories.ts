@@ -2,6 +2,11 @@ import {type Category} from '../types/Category';
 
 export const categories: Category[] = [
     {
+        id: '0',
+        name: 'No Category',
+        color: '#64748b', // gray-500
+    },
+    {
         id: '1',
         name: 'Work',
         color: '#3b82f6', // blue-500
