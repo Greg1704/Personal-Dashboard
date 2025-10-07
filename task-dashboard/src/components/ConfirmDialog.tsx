@@ -12,7 +12,7 @@ interface ConfirmDialogProps {
 
 export function ConfirmDialog({isOpen, title, message, onConfirm, onCancel, confirmText = 'Confirm', cancelText = 'Cancel'}: ConfirmDialogProps) {
     return isOpen && (
-        <div onClick={onCancel} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+        <div onClick={onCancel} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[60]">
             <div onClick={(e) => e.stopPropagation()} className="bg-slate-800 p-6 rounded-lg shadow-lg w-80">
                 <h2 className="text-2xl font-bold text-white mb-3">{title}</h2>
                 <p className="text-gray-200 text-sm mb-6">

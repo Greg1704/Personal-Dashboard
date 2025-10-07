@@ -32,16 +32,13 @@ export function TaskForm({mode, task, onClose, onSubmit, onDelete, categories}: 
         cancelForm();
     }
 
-
     function handleDelete(){
-            onDelete!(task!.id);
-            cancelForm();
+        onDelete!(task!.id);
     }
 
     function cancelForm(){
         onClose();
     }
-
 
     return(
         <div className='items-center flex flex-col'>

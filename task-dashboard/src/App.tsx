@@ -23,7 +23,7 @@ function App() {
   const [isFormClosing, setIsFormClosing] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isEditFormClosing, setIsEditFormClosing] = useState(false);
-  const [taskToDelete, setTaskToDelete] = useState<string | null>(null); // ID de la tarea a eliminar
+  const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
 
   //state variables for animation
   const [removingTasks, setRemovingTasks] = useState<Set<string>>(new Set());
@@ -164,14 +164,16 @@ function App() {
       setRemovingTasks(new Set(removingTasks).add(taskToDelete));
 
       const taskToDeleteId = taskToDelete;
+      
+      // Cerrar el ConfirmDialog inmediatamente
       setTaskToDelete(null);
-
+      
+      // Cerrar el TaskForm con animación
+      closeEditForm();
 
       setTimeout(() => {
         const updatedTasks = tasks.filter(task => task.id !== taskToDeleteId);
         setTasks(updatedTasks);
-        setEditingTask(null);
-        //setTaskToDelete(null);
         setRemovingTasks(prev => {
           const newSet = new Set(prev);
           newSet.delete(taskToDeleteId!);
@@ -180,6 +182,11 @@ function App() {
       }, 500); 
       toast.success('Task deleted successfully');
     }
+  }
+
+  function cancelDelete() {
+    // Solo cerrar el ConfirmDialog, el TaskForm queda abierto
+    setTaskToDelete(null);
   }
 
   function openEditModal(task: Task) {
@@ -266,23 +273,25 @@ function App() {
             </div>
           }
           {editingTask && 
-            <div onClick={() => setEditingTask(null)} className={`fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50
+            <div onClick={closeEditForm} className={`fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50
                                                                   ${isEditFormClosing ? 'animate-backdropExit' : 'animate-backdropEnter'}`}
             >
-              <div onClick={(e) => e.stopPropagation()} className={`bg-slate-800 p-5 rounded-lg shadow-lg w-96 ${isFormClosing ? 'animate-modalExit' : 'animate-modalEnter'}`}>
+              <div onClick={(e) => e.stopPropagation()} className={`bg-slate-800 p-5 rounded-lg shadow-lg w-96 ${isEditFormClosing ? 'animate-modalExit' : 'animate-modalEnter'}`}>
                 <TaskForm mode={'edit'} task={editingTask} onClose={closeEditForm} onSubmit={addTask} onDelete={requestRemoveTask} categories={categories}/>
               </div>
+              {/* ConfirmDialog aparece SOBRE el TaskForm con z-index mayor */}
+              {taskToDelete &&
+                <ConfirmDialog  
+                  isOpen={true} 
+                  title='Confirm Deletion' 
+                  message='Are you sure you want to delete this task?' 
+                  onConfirm={removeTask} 
+                  onCancel={cancelDelete} 
+                  confirmText='Delete' 
+                  cancelText='Cancel'
+                />
+              }
             </div>
-          }
-          {taskToDelete &&
-            <ConfirmDialog  isOpen={true} 
-                            title='Confirm Deletion' 
-                            message='Are you sure you want to delete this task?' 
-                            onConfirm={removeTask} 
-                            onCancel={() => setTaskToDelete(null)} 
-                            confirmText='Delete' 
-                            cancelText='Cancel'
-              />
           }
       </div>
     </>
