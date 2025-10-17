@@ -3,6 +3,7 @@ import { useRef, useState, useEffect, useMemo } from 'react';
 import { TaskCard } from './components/TaskCard';
 import { Sidebar } from './components/Sidebar';
 import { TaskForm } from './components/TaskForm';
+import { CategoryManager } from './components/CategoryManager';
 import {tasks as taskData} from './data/tasks';
 import {stateCheckboxes} from './data/stateCheckboxes';
 import {categories as categoryData} from './data/categories';
@@ -24,6 +25,8 @@ function App() {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isEditFormClosing, setIsEditFormClosing] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
+  const [isCategoryManagerOpen, setIsCategoryManagerOpen] = useState(false);
+  const [isCategoryManagerClosing, setIsCategoryManagerClosing] = useState(false);
 
   //state variables for animation
   const [removingTasks, setRemovingTasks] = useState<Set<string>>(new Set());
@@ -241,6 +244,7 @@ function App() {
                     categories={categories} onSelectedCategoriesChange={onSelectedCategoriesChange} selectedCategories={selectedCategories} categoryTaskCounts={categoryCounts}
                     setIsFormOpen={setIsFormOpen}
                     filteredTasksCount={filteredTasks.length}
+                    setIsCategoryManagerOpen={setIsCategoryManagerOpen}
           />
         </div>
         <div className='p-10 flex justify-center items-center flex-1 min-w-96'>
@@ -291,6 +295,16 @@ function App() {
                   cancelText='Cancel'
                 />
               }
+            </div>
+          }
+          {isCategoryManagerOpen &&
+            <div onClick={() => setIsCategoryManagerOpen(false)} className={`fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50
+                                                                  ${isCategoryManagerClosing ? 'animate-backdropExit' : 'animate-backdropEnter'}`}
+            >
+              <div onClick={(e) => e.stopPropagation()} className={`bg-slate-800 p-5 rounded-lg shadow-lg w-96 
+                                                                  ${isCategoryManagerClosing ? 'animate-modalExit' : 'animate-modalEnter'}`}>
+                <CategoryManager categories={categories}/>
+              </div>
             </div>
           }
       </div>

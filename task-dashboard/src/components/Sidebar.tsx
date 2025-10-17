@@ -22,6 +22,7 @@ interface CategoryProps{
     selectedCategories: string[];
     onSelectedCategoriesChange: (categioriesIds: string[]) => void;
     categoryTaskCounts?: {id: string, count: number}[];
+    setIsCategoryManagerOpen: (isOpen: boolean) => void;
 }
 
 interface TaskFormProps{
@@ -36,7 +37,7 @@ export function Sidebar({
             searchTerm, onSearchChange, 
             checkboxes, onCheckboxChange, onClearAllStateCheckboxes, completedTasksCount, pendingTasksCount, 
             categories, onSelectedCategoriesChange, selectedCategories, categoryTaskCounts, 
-            setIsFormOpen, filteredTasksCount
+            setIsFormOpen, filteredTasksCount, setIsCategoryManagerOpen
 }: SidebarProps) {
 
     const [isStateFilterOpen, setIsStateFilterOpen] =  useState(false);
@@ -149,6 +150,11 @@ export function Sidebar({
                                     transition-all duration-300 ${isCategoryFilterOpen ? 'rounded-t-lg' : 'rounded-lg'}
                         `}>
                     <span>Category Filter</span>
+                    <button onClick={(e) => { e.stopPropagation(); setIsCategoryManagerOpen(true); }}
+                        className='ml-2 px-2 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1'
+                    >
+                        Manage
+                    </button>
                     <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isCategoryFilterOpen ? 'rotate-180' : ''}`} />
                 </button>
                 <div

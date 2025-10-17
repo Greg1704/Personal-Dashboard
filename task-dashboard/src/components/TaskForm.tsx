@@ -100,7 +100,7 @@ export function TaskForm({mode, task, onClose, onSubmit, onDelete, categories}: 
                         </button>
                         <button type="button"
                                 onClick={handleDelete}
-                            className="p-2 rounded bg-red-600 text-white hover:bg-red-700 font-semibold">
+                            className="p-2 rounded transition-colors bg-red-600 text-white hover:bg-red-700 font-semibold">
                             Delete Task
                         </button>
                     </>
