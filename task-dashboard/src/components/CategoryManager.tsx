@@ -1,6 +1,7 @@
 import { type Category } from '../types/Category';
 import { useState } from 'react';
 import { CategoryItem } from './CategoryItem';
+import { Plus } from 'lucide-react';
 
 
 interface CategoryManagerProps {
@@ -20,8 +21,11 @@ export function CategoryManager({categories}: CategoryManagerProps) {
             </h2>
             <div className="bg-slate-700 flex flex-col items-center gap-2 p-3 w-11/12 rounded-lg">
                 {/*El boton no tiene funcionalidad asignada por el momento*/}
-                <button className='w-7/12 p-2 mb-2 rounded font-semibold transition-colors bg-indigo-600 text-white hover:bg-indigo-700'>
-                    Add Category
+                <button className='flex items-center justify-center w-7/12 gap-2 p-2 mb-2 rounded font-semibold 
+                                    transition-colors bg-indigo-600 text-white hover:bg-indigo-700'
+                >
+                    <Plus className="w-5 h-5" />
+                    <span>Add Category</span>
                 </button>
                 {categoriesList}
             </div>
