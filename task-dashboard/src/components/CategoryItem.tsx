@@ -2,18 +2,20 @@ import { useState, useEffect } from 'react';
 import { Pencil, Eraser, Check, X } from 'lucide-react';
 
 interface CategoryItemProps {
+    id?: string;
     name: string;
     color: string;
     taskCount?: number;
     isEditing?: boolean;
     isNoCategory?: boolean;
-    onEdit?: () => void;
-    onDelete?: () => void;
-    onSave?: (newName: string) => void;
+    onEdit?: (id: string) => void;
+    onDelete?: (id: string) => void;
+    onSave?: (id: string, newName: string) => void;
     onCancel?: () => void;
 }
 
 export function CategoryItem({
+    id,
     name, 
     color, 
     taskCount = 0,
@@ -42,8 +44,8 @@ export function CategoryItem({
         }
         
         // Llamar a la función onSave con el nuevo nombre
-        if (onSave) {
-            onSave(trimmedValue);
+        if (onSave && id) {
+            onSave(id, trimmedValue);
         }
     }
 
@@ -56,14 +58,14 @@ export function CategoryItem({
     }
 
     function handleEdit() {
-        if (onEdit) {
-            onEdit();
+        if (onEdit && id) {
+            onEdit(id);
         }
     }
 
     function handleDelete() {
-        if (onDelete) {
-            onDelete();
+        if (onDelete && id) {
+            onDelete(id);
         }
     }
 
