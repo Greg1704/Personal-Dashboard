@@ -6,9 +6,20 @@ import { Plus } from 'lucide-react';
 
 interface CategoryManagerProps {
     categories: Category[];
+    categoriesCount:{id: string; count: number;}[];
+    onClose: () => void;
+    onAddCategory: (name: string, color: string) => void;
+    onEditCategory: (id: string, newName: string) => void;
+    onDeleteCategory: (id: string) => void;
+    isClosing?: boolean;
+
 }
 
 export function CategoryManager({categories}: CategoryManagerProps) {
+
+    const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
+    const [isCreating, setIsCreating] = useState(false);
+    const [newCategoyColor, setNewCategoryColor] = useState('#000000'); //! Modificar esto para que obtenga información de algun algun lado
 
     const categoriesList = categories.map(cat => (
         <CategoryItem key={cat.id} name={cat.name} color={cat.color} />
