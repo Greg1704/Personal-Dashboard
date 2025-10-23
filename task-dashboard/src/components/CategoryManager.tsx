@@ -1,5 +1,6 @@
 import { type Category } from '../types/Category';
-import { useState } from 'react';
+import {categoryColors} from '../data/categoryColors'
+import { useState, useEffect } from 'react';
 import { CategoryItem } from './CategoryItem';
 import { Plus } from 'lucide-react';
 
@@ -19,18 +20,34 @@ export function CategoryManager({categories, categoriesCount, onClose, onAddCate
 
     const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
     const [isCreating, setIsCreating] = useState(false);
-    const [newCategoryColor, setNewCategoryColor] = useState('#000000'); //! Modificar esto para que obtenga información de algun algun lado
+    const [newCategoryColor, setNewCategoryColor] = useState(() => {
+        if (categoryColors.length === 0) return '#000000';
+        // elige el primer color no usado por las categorías (evita saltos por "No Category")
+        const used = new Set(categories.map(c => c.color));
+        const firstUnused = categoryColors.find(col => !used.has(col));
+        return firstUnused ?? categoryColors[categories.length % categoryColors.length];
+    });
+    // mantener newCategoryColor en sync con el prop `categories`
+    useEffect(() => {
+        if (categoryColors.length === 0) {
+            setNewCategoryColor('#000000');
+            return;
+        }
+        const used = new Set(categories.map(c => c.color));
+        const firstUnused = categoryColors.find(col => !used.has(col));
+        setNewCategoryColor(firstUnused ?? categoryColors[categories.length % categoryColors.length]);
+    }, [categories]);
 
-    const categoriesList = //TODO: faltan props y funciones
+    const categoriesList =
     <>
     {categories.map(cat => {
 
         const isEditing = editingCategoryId === cat.id;
 
-        <CategoryItem   key={cat.id} id={cat.id} name={cat.name} color={cat.color} taskCount={categoriesCount?.find(c => c.id === cat.id)?.count} 
-                        isEditing={isEditing} isNoCategory={cat.id === "0"? true:false} onEdit={handleStartEditing} 
-                        onDelete={handleDeleteCategory} onSave={handleSaveCategory} onCancel={handleCancelEditing}
-        />
+        return (<CategoryItem   key={cat.id} id={cat.id} name={cat.name} color={cat.color} taskCount={categoriesCount?.find(c => c.id === cat.id)?.count} 
+                                isEditing={isEditing} isNoCategory={cat.id === "0"? true:false} onEdit={handleStartEditing} 
+                                onDelete={handleDeleteCategory} onSave={handleSaveCategory} onCancel={handleCancelEditing}
+        />)
     })}
     {isCreating && (
         <CategoryItem
@@ -45,19 +62,37 @@ export function CategoryManager({categories, categoriesCount, onClose, onAddCate
     </>
     function getNextAvailableColor(){}
 
-    function handleStartEditing(categoryId: string) {}
+    function handleStartEditing(categoryId: string) {
+        setEditingCategoryId(categoryId);
+    }
 
-    function handleCancelEditing() {}
+    function handleCancelEditing() {
+        setEditingCategoryId(null);
+    }
 
-    function handleSaveCategory(categoryId: string, newName: string) {} // Puede ser para editar o crear
+    function handleSaveCategory(categoryId: string, newName: string) {
+        if (categoryId === "new") {
+            onAddCategory(newName, newCategoryColor);
+            setIsCreating(false);
+            // quitar setNewCategoryColor aquí — useEffect actualizará después del re-render del padre
+        } else {
+            onEditCategory(categoryId, newName);
+            setEditingCategoryId(null);
+        }
+    }
 
     function handleStartCreating() {
         setIsCreating(true);
     }
 
-    function handleCancelCreating() {}
+    function handleCancelCreating() {
+        setIsCreating(false);
+    }
 
-    function handleDeleteCategory(categoryId: string) {}
+    function handleDeleteCategory(categoryId: string) {
+        onDeleteCategory(categoryId);
+        // quitar setNewCategoryColor aquí — useEffect actualizará con el nuevo `categories`
+    }
 
     return (<>
         <div className='items-center flex flex-col'>
@@ -74,6 +109,12 @@ export function CategoryManager({categories, categoriesCount, onClose, onAddCate
                     <span>Add Category</span>
                 </button>
                 {categoriesList}
+                <button className='flex items-center justify-center w-7/12 gap-2 p-2 mt-2 mb-2 rounded font-semibold 
+                                    transition-colors bg-slate-500 text-white hover:bg-slate-600'
+                        onClick={onClose}
+                >
+                    <span>Close</span>
+                </button>
             </div>
         </div>
     </>)

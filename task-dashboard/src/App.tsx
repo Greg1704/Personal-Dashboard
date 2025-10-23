@@ -27,6 +27,7 @@ function App() {
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
   const [isCategoryManagerOpen, setIsCategoryManagerOpen] = useState(false);
   const [isCategoryManagerClosing, setIsCategoryManagerClosing] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
 
   //state variables for animation
   const [removingTasks, setRemovingTasks] = useState<Set<string>>(new Set());
@@ -156,6 +157,42 @@ function App() {
       toast.success('Task updated successfully');
     }
   }
+
+  function addCategory(name: string, color: string) {
+    const newCategory = {
+      id: crypto.randomUUID(),
+      name,
+      color
+    };
+    setCategories([...categories, newCategory]);
+    toast.success('Category added successfully');
+  }
+
+  function editCategory(id: string, newName: string) {
+    const updatedCategories = categories.map(category =>
+      category.id === id ? { ...category, name: newName } : category
+    );
+    setCategories(updatedCategories);
+    toast.success('Category updated successfully');
+  }
+
+  function requestRemoveCategory(id: string) {
+    setCategoryToDelete(id);
+  }
+
+  function removeCategory() {
+    const id = categoryToDelete;
+    if(!id) return;
+    const updatedCategories = categories.filter(category => category.id !== id);
+    setCategories(updatedCategories);
+
+    const updatedTasks = tasks.map(task => task.categoryId === id ? { ...task, categoryId: "0" } : task );
+    setTasks(updatedTasks);
+
+    setCategoryToDelete(null);
+
+    toast.success('Category deleted successfully');
+  }
   
   function requestRemoveTask(id: string) {
     setTaskToDelete(id);
@@ -189,7 +226,11 @@ function App() {
 
   function cancelDelete() {
     // Solo cerrar el ConfirmDialog, el TaskForm queda abierto
-    setTaskToDelete(null);
+    if(taskToDelete){
+      setTaskToDelete(null);
+    }else if(categoryToDelete){
+      setCategoryToDelete(null);
+    }
   }
 
   function openEditModal(task: Task) {
@@ -215,7 +256,7 @@ function App() {
     );
   });
 
-  //Functions to close TaskForm with animation
+  //Functions to close components with animation
   function closeCreateForm() {
     setIsFormClosing(true);
     setTimeout(() => {
@@ -229,6 +270,14 @@ function App() {
     setTimeout(() => {
       setEditingTask(null);
       setIsEditFormClosing(false);
+    }, 300);
+  }
+
+  function closeCategoryManager() {
+    setIsCategoryManagerClosing(true);
+    setTimeout(() => {
+      setIsCategoryManagerOpen(false);
+      setIsCategoryManagerClosing(false);
     }, 300);
   }
 
@@ -298,13 +347,26 @@ function App() {
             </div>
           }
           {isCategoryManagerOpen &&
-            <div onClick={() => setIsCategoryManagerOpen(false)} className={`fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50
+            <div onClick={closeCategoryManager} className={`fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50
                                                                   ${isCategoryManagerClosing ? 'animate-backdropExit' : 'animate-backdropEnter'}`}
             >
               <div onClick={(e) => e.stopPropagation()} className={`bg-slate-800 p-5 rounded-lg shadow-lg w-96 
                                                                   ${isCategoryManagerClosing ? 'animate-modalExit' : 'animate-modalEnter'}`}>
-                <CategoryManager categories={categories}/>
+                <CategoryManager  categories={categories} categoriesCount={categoryCounts} onClose={closeCategoryManager} onAddCategory={addCategory}
+                                  onEditCategory={editCategory} onDeleteCategory={requestRemoveCategory}
+                />
               </div>
+              {categoryToDelete &&
+                <ConfirmDialog  
+                  isOpen={true} 
+                  title='Confirm Deletion' 
+                  message='Are you sure you want to delete this category?' 
+                  onConfirm={removeCategory} 
+                  onCancel={cancelDelete} 
+                  confirmText='Delete' 
+                  cancelText='Cancel'
+                />
+              }
             </div>
           }
       </div>

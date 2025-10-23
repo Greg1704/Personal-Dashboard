@@ -1,4 +1,5 @@
 import {type Category} from '../types/Category';
+import {categoryColors} from '../data/categoryColors'
 
 export const categories: Category[] = [
     {
@@ -9,16 +10,16 @@ export const categories: Category[] = [
     {
         id: '1',
         name: 'Work',
-        color: '#3b82f6', // blue-500
+        color: categoryColors[0], // blue-500
     },
     {
         id: '2',
         name: 'Personal',
-        color: '#a855f7', // purple-500
+        color: categoryColors[1], // purple-500
     },
     {
         id: '3',
         name: 'Urgent',
-        color: '#ef4444', // red-500
+        color: categoryColors[2], // red-500
     },  
 ]
