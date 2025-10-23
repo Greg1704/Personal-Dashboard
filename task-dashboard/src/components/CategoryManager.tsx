@@ -27,6 +27,9 @@ export function CategoryManager({categories, categoriesCount, onClose, onAddCate
         const firstUnused = categoryColors.find(col => !used.has(col));
         return firstUnused ?? categoryColors[categories.length % categoryColors.length];
     });
+
+    const canCreateMoreCategories = categories.length < categoryColors.length + 1;
+
     // mantener newCategoryColor en sync con el prop `categories`
     useEffect(() => {
         if (categoryColors.length === 0) {
@@ -101,6 +104,7 @@ export function CategoryManager({categories, categoriesCount, onClose, onAddCate
             </h2>
             <div className="bg-slate-700 flex flex-col items-center gap-2 p-3 w-11/12 rounded-lg">
                 {/*El boton no tiene funcionalidad asignada por el momento*/}
+                { canCreateMoreCategories &&
                 <button className='flex items-center justify-center w-7/12 gap-2 p-2 mb-2 rounded font-semibold 
                                     transition-colors bg-indigo-600 text-white hover:bg-indigo-700'
                         onClick={handleStartCreating}
@@ -108,6 +112,7 @@ export function CategoryManager({categories, categoriesCount, onClose, onAddCate
                     <Plus className="w-5 h-5" />
                     <span>Add Category</span>
                 </button>
+                }
                 {categoriesList}
                 <button className='flex items-center justify-center w-7/12 gap-2 p-2 mt-2 mb-2 rounded font-semibold 
                                     transition-colors bg-slate-500 text-white hover:bg-slate-600'
