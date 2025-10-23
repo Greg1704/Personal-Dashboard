@@ -63,7 +63,6 @@ export function CategoryManager({categories, categoriesCount, onClose, onAddCate
         />
     )}
     </>
-    function getNextAvailableColor(){}
 
     function handleStartEditing(categoryId: string) {
         setEditingCategoryId(categoryId);

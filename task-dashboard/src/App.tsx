@@ -282,7 +282,7 @@ function App() {
   }
 
   const taskBoard = (
-      <div className="bg-slate-900 flex flex-row rounded-lg m-5 min-w-fit">
+      <div className="bg-slate-900 flex flex-row rounded-lg m-5 mb-10 min-w-fit">
         <div className="bg-slate-700 w-1/5 p-10 rounded-l-lg min-w-64 border-r border-slate-600">          
           <Sidebar  searchTerm={searchTerm} onSearchChange={setSearchTerm}  
                     checkboxes={filterCheckboxes} onCheckboxChange={onCheckboxChange} completedTasksCount={completedTasksCount} pendingTasksCount={pendingTasksCount}
@@ -296,7 +296,7 @@ function App() {
                     setIsCategoryManagerOpen={setIsCategoryManagerOpen}
           />
         </div>
-        <div className='p-10 flex justify-center items-center flex-1 min-w-96'>
+        <div className='p-10 flex-1 min-w-96'>
           <div className="flex flex-row flex-wrap gap-2.5 justify-center">
             {taskList.length > 0 ? taskList : <p className='text-white text-4xl'>No tasks found</p>}
           </div>

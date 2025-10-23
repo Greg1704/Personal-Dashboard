@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Pencil, Eraser, Check, X } from 'lucide-react';
 
 interface CategoryItemProps {
-    id?: string;
+    id: string;
     name: string;
     color: string;
     taskCount?: number;
