@@ -307,13 +307,13 @@ function App() {
   return (
     <>
       <Toaster position="top-right" reverseOrder={false} />
-      <div className='min-h-screen bg-gradient-to-b from-slate-800 to-slate-900'>
+      <div className='min-h-screen bg-slate-800 pb-3'>
           <header>
             <h1 className="text-4xl font-bold text-white text-center p-5 bg-indigo-600">
               Personal Dashboard
             </h1>
           </header>
-          <div className ="mx-5 my-5">
+          <div className ="mx-5 my-10">
             {taskBoard}
           </div>
           {isFormOpen && 

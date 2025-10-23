@@ -1,3 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* asegurar que html/body ocupen toda la altura y el fondo siempre esté detrás */
+html, body, #root {
+    height: 100%;
+}
+
+body {
+  /* aplica el mismo gradiente que usas en el contenedor principal */
+}
