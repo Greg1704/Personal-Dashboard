@@ -1,6 +1,6 @@
 import { Search, Plus, ChevronDown, Ambulance } from 'lucide-react';
 import { type StateCheckbox } from '../types/StateCheckbox';
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { type Category } from '../types/Category';
 import { ActiveFilters } from './ActiveFilters';
 
@@ -38,7 +38,7 @@ interface SidebarProps extends SearchBarProps, FilterCheckboxProps, CategoryProp
     filteredTasksCount: number;
 }
 
-export function Sidebar({
+function SidebarComponent({
             searchTerm, onSearchChange, 
             checkboxes, onCheckboxChange, onClearAllStateCheckboxes, completedTasksCount, pendingTasksCount, 
             categories, onSelectedCategoriesChange, selectedCategories, categoryTaskCounts, 
@@ -186,3 +186,5 @@ export function Sidebar({
         </>
     )
 }
+
+export const Sidebar = memo(SidebarComponent);

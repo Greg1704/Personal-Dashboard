@@ -1,5 +1,5 @@
 // src/App.tsx
-import { useRef, useState, useEffect, useMemo } from 'react';
+import { useRef, useState, useEffect, useMemo, useCallback } from 'react';
 import { TaskCard } from './components/TaskCard';
 import { Sidebar } from './components/Sidebar';
 import { TaskForm } from './components/TaskForm';
@@ -12,11 +12,13 @@ import { type TaskSubmitData } from './types/TaskSubmitData';
 import { ConfirmDialog } from './components/ConfirmDialog';
 import toast, { Toaster } from 'react-hot-toast';
 import {storage} from './utils/localStorage';
+import {useDebounce} from './hooks/useDebounce';
 
 function App() {
 
   //state variables
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const [filterCheckboxes, setFilterCheckboxes] = useState(stateCheckboxes);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [categories, setCategories] = useState(categoryData);
@@ -38,22 +40,23 @@ function App() {
   // Ref to store the previous filtered tasks
   const prevFilteredTasksRef = useRef<Task[]>([]);
 
-  const activeCheckboxes = filterCheckboxes.filter(checkbox => checkbox.checked).map(checkbox => checkbox.label);
+  const activeCheckboxes = useMemo(() =>filterCheckboxes.filter(checkbox => checkbox.checked).map(checkbox => checkbox.label), [filterCheckboxes]);
 
-  const filteredTasks = tasks.filter(task =>
-    (task.title.toLowerCase().includes(searchTerm.toLowerCase()) 
-    || task.description?.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredTasks = useMemo(() => tasks.filter(task =>
+    (task.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) 
+    || task.description?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()))
     && (activeCheckboxes.length === 0 || activeCheckboxes.includes(task.completed ? 'Completed' : 'Pending'))
     && (selectedCategories.length === 0 || ( task.categoryId && selectedCategories.includes(task.categoryId)))
-  );
+  ),[tasks, debouncedSearchTerm, activeCheckboxes, selectedCategories]);
 
   const pendingTasksCount = tasks.filter(task => !task.completed).length;
   const completedTasksCount = tasks.filter(task => task.completed).length;
 
-  const categoryCounts = categories.map(category => ({
+  const categoryCounts = useMemo(() => categories.map(category => ({
     id: category.id,
     count: tasks.filter(task => task.categoryId === category.id).length
-  }));
+  })), [categories, tasks]);
+
 
   //Use Memo Hooks
 
@@ -79,6 +82,8 @@ function App() {
     return {tasksToRenderWithAnimations: tasksToRender, newEnteringTasks: tasksEntering, newExitingTasks: tasksExiting};
 
   },[filteredTasks, tasks, exitingTasks, removingTasks]);
+
+  const hasLastDeletedTask = useMemo(() => storage.getLastDeletedTask() !== null, []);
 
   //Use Effect Hooks
   // Effect to handle exiting animation for tasks on filter change
@@ -120,16 +125,21 @@ function App() {
 
   // Functions
 
-  function onCheckboxChange(id: string, checked: boolean) {
+  const onCheckboxChange = useCallback((id: string, checked: boolean) => {
     const updatedCheckboxes = filterCheckboxes.map(checkbox =>
       checkbox.id === id ? { ...checkbox, checked } : checkbox
     );
     setFilterCheckboxes(updatedCheckboxes);
-  }
+  }, [filterCheckboxes]);
 
-  function onSelectedCategoriesChange(categioriesIds: string[]) {
+  const onClearAllStateCheckboxes = useCallback(() => {
+    const updatedCheckboxes = filterCheckboxes.map(checkbox => ({...checkbox, checked: false}));
+    setFilterCheckboxes(updatedCheckboxes);
+  }, [filterCheckboxes]);
+
+  const onSelectedCategoriesChange = useCallback((categioriesIds: string[]) => {
     setSelectedCategories(categioriesIds);
-  }
+  }, []);
 
   function onTaskStatusChange(id: string, completed: boolean) {
     const updatedTasks = tasks.map(task =>
@@ -231,7 +241,7 @@ function App() {
     }
   }
 
-  function onUndoDelete() {
+  const onUndoDelete= useCallback(() => {
     const lastDeletedTask = storage.getLastDeletedTask();
     if(lastDeletedTask){
       setTasks([...tasks, lastDeletedTask]);
@@ -240,7 +250,7 @@ function App() {
     }else{
       toast.error('No task to restore');
     }
-  }
+  }, [tasks]);
 
   function cancelDelete() {
     // Solo cerrar el ConfirmDialog, el TaskForm queda abierto
@@ -254,6 +264,8 @@ function App() {
   function openEditModal(task: Task) {
     setEditingTask(task);
   }
+
+
 
   const taskList = tasksToRenderWithAnimations.map((task) => {
     const category = categories.find((cat) => cat.id === task.categoryId);
@@ -304,15 +316,12 @@ function App() {
         <div className="bg-slate-700 w-1/5 p-10 rounded-l-lg min-w-64 border-r border-slate-600">          
           <Sidebar  searchTerm={searchTerm} onSearchChange={setSearchTerm}  
                     checkboxes={filterCheckboxes} onCheckboxChange={onCheckboxChange} completedTasksCount={completedTasksCount} pendingTasksCount={pendingTasksCount}
-                    onClearAllStateCheckboxes={() => {
-                      const updatedCheckboxes = filterCheckboxes.map(checkbox => ({...checkbox, checked: false}));
-                      setFilterCheckboxes(updatedCheckboxes);
-                    }}
+                    onClearAllStateCheckboxes={onClearAllStateCheckboxes}
                     categories={categories} onSelectedCategoriesChange={onSelectedCategoriesChange} selectedCategories={selectedCategories} categoryTaskCounts={categoryCounts}
                     setIsFormOpen={setIsFormOpen}
                     filteredTasksCount={filteredTasks.length}
                     setIsCategoryManagerOpen={setIsCategoryManagerOpen}
-                    onUndoLastDelete={onUndoDelete} hasLastDeletedTask={storage.getLastDeletedTask() !== null}
+                    onUndoLastDelete={onUndoDelete} hasLastDeletedTask={hasLastDeletedTask}
           />
         </div>
         <div className='p-10 flex-1 min-w-96'>
