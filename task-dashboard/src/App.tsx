@@ -11,6 +11,7 @@ import { type Task } from './types/Task';
 import { type TaskSubmitData } from './types/TaskSubmitData';
 import { ConfirmDialog } from './components/ConfirmDialog';
 import toast, { Toaster } from 'react-hot-toast';
+import {storage} from './utils/localStorage';
 
 function App() {
 
@@ -201,6 +202,12 @@ function App() {
   function removeTask() {
     if(taskToDelete)
     {  
+
+      const taskToRemove = tasks.find(task => task.id === taskToDelete);
+      if(taskToRemove){
+        storage.saveLastDeletedTask(taskToRemove);
+      }
+
       setRemovingTasks(new Set(removingTasks).add(taskToDelete));
 
       const taskToDeleteId = taskToDelete;
@@ -221,6 +228,17 @@ function App() {
         });
       }, 500); 
       toast.success('Task deleted successfully');
+    }
+  }
+
+  function onUndoDelete() {
+    const lastDeletedTask = storage.getLastDeletedTask();
+    if(lastDeletedTask){
+      setTasks([...tasks, lastDeletedTask]);
+      storage.clearLastDeletedTask();
+      toast.success('Task restored successfully');
+    }else{
+      toast.error('No task to restore');
     }
   }
 
@@ -294,6 +312,7 @@ function App() {
                     setIsFormOpen={setIsFormOpen}
                     filteredTasksCount={filteredTasks.length}
                     setIsCategoryManagerOpen={setIsCategoryManagerOpen}
+                    onUndoLastDelete={onUndoDelete} hasLastDeletedTask={storage.getLastDeletedTask() !== null}
           />
         </div>
         <div className='p-10 flex-1 min-w-96'>

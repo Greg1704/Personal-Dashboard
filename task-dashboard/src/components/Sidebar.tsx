@@ -1,4 +1,4 @@
-import { Search, Plus, ChevronDown } from 'lucide-react';
+import { Search, Plus, ChevronDown, Ambulance } from 'lucide-react';
 import { type StateCheckbox } from '../types/StateCheckbox';
 import { useState } from 'react';
 import { type Category } from '../types/Category';
@@ -29,7 +29,12 @@ interface TaskFormProps{
     setIsFormOpen: (isOpen: boolean) => void;
 }
 
-interface SidebarProps extends SearchBarProps, FilterCheckboxProps, CategoryProps, TaskFormProps {
+interface LastDeletedTaskProps{
+    onUndoLastDelete: () => void;
+    hasLastDeletedTask: boolean;
+}
+
+interface SidebarProps extends SearchBarProps, FilterCheckboxProps, CategoryProps, TaskFormProps, LastDeletedTaskProps {
     filteredTasksCount: number;
 }
 
@@ -37,7 +42,7 @@ export function Sidebar({
             searchTerm, onSearchChange, 
             checkboxes, onCheckboxChange, onClearAllStateCheckboxes, completedTasksCount, pendingTasksCount, 
             categories, onSelectedCategoriesChange, selectedCategories, categoryTaskCounts, 
-            setIsFormOpen, filteredTasksCount, setIsCategoryManagerOpen
+            setIsFormOpen, filteredTasksCount, setIsCategoryManagerOpen, onUndoLastDelete, hasLastDeletedTask
 }: SidebarProps) {
 
     const [isStateFilterOpen, setIsStateFilterOpen] =  useState(false);
@@ -99,6 +104,15 @@ export function Sidebar({
                 className="w-full mb-4 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-colors shadow-md flex items-center justify-center gap-2">
                     <Plus className="w-5 h-5" />
                     Create New Task
+            </button>
+            <button 
+                onClick={onUndoLastDelete} 
+                className={`w-full mb-4 px-4 py-3 font-semibold rounded-lg transition-colors shadow-md flex items-center justify-center gap-2`
+                    + (hasLastDeletedTask ? ' bg-indigo-600 hover:bg-indigo-700 text-white' : ' bg-gray-400 text-gray-600 cursor-not-allowed')
+                }
+            >
+                    <Ambulance className="w-5 h-5" />
+                    Restore Last Task
             </button>
             <div className="w-full max-w-md mx-auto mb-6 relative">
                 <input
