@@ -1,8 +1,9 @@
 import { Search, Plus, ChevronDown, Ambulance } from 'lucide-react';
 import { type StateCheckbox } from '../types/StateCheckbox';
-import { useState, memo } from 'react';
+import { useState, memo, useCallback } from 'react';
 import { type Category } from '../types/Category';
 import { ActiveFilters } from './ActiveFilters';
+import { useMemo } from 'react';
 
 interface SearchBarProps {
     searchTerm: string;
@@ -48,7 +49,7 @@ function SidebarComponent({
     const [isStateFilterOpen, setIsStateFilterOpen] =  useState(false);
     const [isCategoryFilterOpen, setIsCategoryFilterOpen] =  useState(false);
 
-    function handleCategoryChange(categoryId: string){
+    const handleCategoryChange= useCallback((categoryId: string) =>{
         let updatedCategories: string[] = [];
         if(categories.find(cat => cat.id === categoryId)){
             if(!selectedCategories.find(catId => catId === categoryId)){
@@ -58,26 +59,29 @@ function SidebarComponent({
             }
             onSelectedCategoriesChange(updatedCategories);
         }
-    }
+    }, [categories, selectedCategories, onSelectedCategoriesChange]);
 
-    function clearAll(){
+    const clearAll = useCallback(() =>{
         onClearAllStateCheckboxes();
         onSelectedCategoriesChange([]);
-    }
+    }, [onClearAllStateCheckboxes, onSelectedCategoriesChange]);
 
-    const stateCheckboxes = checkboxes.map((checkbox) => (
-                <label key={checkbox.id} className='flex items-center space-x-3 cursor-pointer'>
-                    <input  type="checkbox" onChange={(e) => onCheckboxChange(checkbox.id,e.target.checked)} checked={checkbox.checked} 
-                            className='form-checkbox h-5 w-5 text-indigo-600 focus:ring-indigo-500' 
-                    />
-                    <span className='text-white'>{checkbox.label}</span>
-                    <span className='bg-slate-800 text-gray-300 px-2 py-0.5 rounded-full text-xs font-semibold'>
-                        {checkbox.label === 'Completed'?completedTasksCount:pendingTasksCount}
-                    </span>
-                </label>
-            ));
+    const stateCheckboxes = useMemo(() => 
+        checkboxes.map((checkbox) => (
+            <label key={checkbox.id} className='flex items-center space-x-3 cursor-pointer'>
+                <input  type="checkbox" onChange={(e) => onCheckboxChange(checkbox.id,e.target.checked)} checked={checkbox.checked} 
+                        className='form-checkbox h-5 w-5 text-indigo-600 focus:ring-indigo-500' 
+                />
+                <span className='text-white'>{checkbox.label}</span>
+                <span className='bg-slate-800 text-gray-300 px-2 py-0.5 rounded-full text-xs font-semibold'>
+                    {checkbox.label === 'Completed'?completedTasksCount:pendingTasksCount}
+                </span>
+            </label>
+        )), 
+    [checkboxes, onCheckboxChange, completedTasksCount, pendingTasksCount]);
             
-    const categoryCheckboxes = categories.map((category) => {
+    const categoryCheckboxes = useMemo(() => 
+        categories.map((category) => {
                 const categoryCount = categoryTaskCounts?.find(c => c.id === category.id)?.count || 0;
                 return (
                     <label key={category.id} className='flex items-center space-x-3 cursor-pointer'>
@@ -95,7 +99,8 @@ function SidebarComponent({
                         </span>
                     </label>
                 );
-    });
+        }), 
+    [categories, selectedCategories, handleCategoryChange, categoryTaskCounts]);
 
     return(
         <>

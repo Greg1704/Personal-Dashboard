@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { type Category } from '../types/Category';
 import {type StateCheckbox} from '../types/StateCheckbox';
 
@@ -13,7 +13,7 @@ interface ActiveFiltersProps{
     allTasksCount: number;
 }
 
-export function ActiveFilters({checkboxes, onCheckboxChange, categories, selectedCategories, onCategoryChange, onClearAll, filteredTasksCount, allTasksCount}: ActiveFiltersProps) {
+function ActiveFiltersComponent({checkboxes, onCheckboxChange, categories, selectedCategories, onCategoryChange, onClearAll, filteredTasksCount, allTasksCount}: ActiveFiltersProps) {
     
     const checkboxTags = checkboxes.filter(checkbox => checkbox.checked).map((checkbox) => (
         <span key={checkbox.id} className='bg-indigo-600 text-white px-4 py-1 rounded-full text-xs font-medium flex items-center space-x-2  mr-2 mb-2'>
@@ -51,3 +51,5 @@ export function ActiveFilters({checkboxes, onCheckboxChange, categories, selecte
         </div>
     )
 }
+
+export const ActiveFilters = memo(ActiveFiltersComponent);
