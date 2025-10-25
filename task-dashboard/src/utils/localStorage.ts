@@ -1,17 +1,11 @@
 // src/utils/localStorage.ts
-const STORAGE_KEY = 'taskDashboard_';
+// DEPRECATED: Use storageService from services/storageService.ts instead
+// This file is kept for backwards compatibility only
+
+import { storageService } from '../services/storageService';
 
 export const storage = {
-    saveLastDeletedTask: (task: any) => {
-        localStorage.setItem(`${STORAGE_KEY}lastDeletedTask`, JSON.stringify(task));
-    },
-    
-    getLastDeletedTask: () => {
-        const taskStr = localStorage.getItem(`${STORAGE_KEY}lastDeletedTask`);
-        return taskStr ? JSON.parse(taskStr) : null;
-    },
-    
-    clearLastDeletedTask: () => {
-        localStorage.removeItem(`${STORAGE_KEY}lastDeletedTask`);
-    }
+    saveLastDeletedTask: storageService.saveLastDeletedTask,
+    getLastDeletedTask: storageService.getLastDeletedTask,
+    clearLastDeletedTask: storageService.clearLastDeletedTask
 };

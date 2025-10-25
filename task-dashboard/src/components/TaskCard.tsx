@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { type Task } from '../types/Task';
 
 interface TaskCardProps {
@@ -10,7 +11,7 @@ interface TaskCardProps {
   isEntering?: boolean;
 }
 
-export function TaskCard({ task, onStatusChange, color, categoryName, onTaskClick, isRemoving, isEntering }: TaskCardProps) {
+function TaskCardComponent({ task, onStatusChange, color, categoryName, onTaskClick, isRemoving, isEntering }: TaskCardProps) {
   return (
     <div 
       onClick={() => onTaskClick(task)}
@@ -48,3 +49,5 @@ export function TaskCard({ task, onStatusChange, color, categoryName, onTaskClic
     </div>
   );
 }
+
+export const TaskCard = memo(TaskCardComponent);

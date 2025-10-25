@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import {type Category} from '../types/Category';
 import { type Task } from '../types/Task';
 import { type TaskSubmitData } from '../types/TaskSubmitData';
@@ -12,7 +12,7 @@ interface TaskFormProps {
     categories: Category[];
 }
 
-export function TaskForm({mode, task, onClose, onSubmit, onDelete, categories}: TaskFormProps) {
+function TaskFormComponent({mode, task, onClose, onSubmit, onDelete, categories}: TaskFormProps) {
     const [title, setTitle] = useState(task?.title || '');
     const [description, setDescription] = useState(task?.description || '');
     const [selectedCategoryId, setSelectedCategoryId] = useState(task?.categoryId || "0");
@@ -114,3 +114,5 @@ export function TaskForm({mode, task, onClose, onSubmit, onDelete, categories}: 
         </div>
     );
 }
+
+export const TaskForm = memo(TaskFormComponent);

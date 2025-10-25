@@ -1,4 +1,4 @@
-import { useState, memo } from 'react';
+import { memo } from 'react';
 import { type Category } from '../types/Category';
 import {type StateCheckbox} from '../types/StateCheckbox';
 

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { type Category } from '../types/Category';
 import {categoryColors} from '../data/categoryColors'
 import { useState, useEffect } from 'react';
@@ -16,7 +17,7 @@ interface CategoryManagerProps {
 
 }
 
-export function CategoryManager({categories, categoriesCount, onClose, onAddCategory, onEditCategory, onDeleteCategory, isClosing}: CategoryManagerProps) {
+function CategoryManagerComponent({categories, categoriesCount, onClose, onAddCategory, onEditCategory, onDeleteCategory}: CategoryManagerProps) {
 
     const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
     const [isCreating, setIsCreating] = useState(false);
@@ -123,3 +124,5 @@ export function CategoryManager({categories, categoriesCount, onClose, onAddCate
         </div>
     </>)
 }
+
+export const CategoryManager = memo(CategoryManagerComponent);
