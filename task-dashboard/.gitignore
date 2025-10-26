@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Readme files
+ARCHITECTURE.md
+REFACTOR_NOTES.md
+REFACTOR_SUMMARY.md
+STATISTICS_PLAN.md
