@@ -1,5 +1,6 @@
 import StatCard from '../components/statistics/StatCard';
 import {CategoryDistributionChart} from '../components/statistics/CategoryDistributionChart';
+import {TasksByCategoryChart} from '../components/statistics/TasksByCategoryChart';
 import {useMemo} from 'react';
 import {useTaskStore} from '../stores/useTaskStore';
 import {useCategoryStore} from '../stores/useCategoryStore';
@@ -21,7 +22,11 @@ export const Statistics = () => {
     [tasks, categories]);
 
     const pieChartData = useMemo(() =>
-        statisticsService.getPieChartData(categoryStats), 
+        statisticsService.getPieChartData(categoryStats),
+    [categoryStats]);
+
+    const barChartData = useMemo(() =>
+        statisticsService.getBarChartData(categoryStats),
     [categoryStats]);
 
     return (
@@ -34,6 +39,7 @@ export const Statistics = () => {
         </div>
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
             <CategoryDistributionChart data={pieChartData} />
+            <TasksByCategoryChart data={barChartData} />
         </div>
     </div>
 
