@@ -2,8 +2,8 @@ import { useAuthStore } from "../../stores/useAuthStore";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-function LoginForm() {
-    const { login, isLoading, error, clearError } = useAuthStore();
+function SignUpForm() {
+    const { signUp, isLoading, error, clearError } = useAuthStore();
     const navigate = useNavigate();
 
     const [email, setEmail] = useState('');
@@ -12,12 +12,12 @@ function LoginForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await login(email, password);
+            await signUp(email, password);
             // Si no hay error, redirigir al dashboard
             navigate('/dashboard');
         } catch (err) {
             // El error ya se maneja en el store
-            console.error('Error en login:', err);
+            console.error('Error en signup:', err);
         }
     }
 
@@ -28,7 +28,7 @@ function LoginForm() {
 
     return (
         <div className="max-w-md mx-auto mt-10 p-6 bg-gray-700 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold text-white mb-6 text-center">Login</h2>
+            <h2 className="text-2xl font-bold text-white mb-6 text-center">Register New Account</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                     <label htmlFor="email" className="block text-white mb-2 text-sm font-medium">
@@ -72,18 +72,18 @@ function LoginForm() {
                     disabled={isLoading}
                     className="bg-indigo-600 hover:bg-indigo-700 text-white p-3 w-full rounded font-medium disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                 >
-                    {isLoading ? 'Logging in...' : 'Login'}
+                    {isLoading ? 'Creating account...' : 'Register'}
                 </button>
             </form>
 
             <p className="text-gray-400 text-center mt-4 text-sm">
-                Don't have an account?{' '}
-                <Link to="/signup" className="text-indigo-400 hover:text-indigo-300 font-medium">
-                    Sign up
+                Already have an account?{' '}
+                <Link to="/login" className="text-indigo-400 hover:text-indigo-300 font-medium">
+                    Login
                 </Link>
             </p>
         </div>
     );
 }
 
-export default LoginForm;
+export default SignUpForm;

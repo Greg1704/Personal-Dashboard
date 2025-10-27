@@ -1,10 +1,19 @@
 import { useAuthStore } from "../../stores/useAuthStore";
+import { useNavigate } from "react-router-dom";
 
 function GoogleLoginButton() {
     const { loginWithGoogle, isLoading } = useAuthStore();
+    const navigate = useNavigate();
 
     const handleGoogleLogin = async () => {
-        await loginWithGoogle();
+        try {
+            await loginWithGoogle();
+            // Si no hay error, redirigir al dashboard
+            navigate('/dashboard');
+        } catch (err) {
+            // El error ya se maneja en el store
+            console.error('Error en Google login:', err);
+        }
     }
 
     return (

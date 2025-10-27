@@ -9,42 +9,6 @@ Implementar autenticación en el Personal Dashboard usando Firebase Authenticati
 
 ## Fases de Implementación
 
-### FASE 4: Componentes de UI (1-2 horas)
-
-#### 4.1 Crear componentes de autenticación
-- [ ] `src/pages/SignUp.tsx` - Página de registro
-- [ ] `src/components/auth/SignUpForm.tsx` - Formulario de registro
-- [ ] `src/components/auth/ProtectedRoute.tsx` - Rutas protegidas
-
-#### 4.2 Diseñar UI con TailwindCSS
-- [ ] Diseño responsive
-- [ ] Validación de formularios
-- [ ] Mensajes de error
-- [ ] Estados de loading
-- [ ] Animaciones de transición
-
----
-
-### FASE 5: Configuración de Routing (20-30 min)
-
-#### 5.1 Modificar App.tsx
-- [ ] Agregar rutas públicas:
-  - `/login` → Login page
-  - `/signup` → SignUp page
-- [ ] Proteger rutas privadas:
-  - `/dashboard` → Dashboard (protegido)
-  - `/statistics` → Statistics (protegido)
-- [ ] Configurar redirecciones:
-  - Usuario autenticado en `/login` → `/dashboard`
-  - Usuario no autenticado en `/dashboard` → `/login`
-
-#### 5.2 Implementar ProtectedRoute
-- [ ] Verificar autenticación
-- [ ] Mostrar loading mientras verifica
-- [ ] Redirigir según estado
-
----
-
 ### FASE 6: Migración de Datos a Firestore (2-3 horas)
 
 #### 6.1 Modificar estructura de datos

@@ -27,8 +27,11 @@ export const useAuthStore = create<AuthStore>((set) => ({
     signUp: async (email, password) => {
         set({ isLoading: true, error: null });
         try {
+            console.log('🔵 SignUp: Iniciando registro...', { email });
             await authService.signUpWithEmail(email, password);
+            console.log('✅ SignUp: Usuario creado exitosamente');
         } catch (error: any) {
+            console.error('❌ SignUp: Error al registrar', error);
             set({ error: getAuthErrorMessage(error.code) });
         } finally {
             set({ isLoading: false });
@@ -73,8 +76,10 @@ export const useAuthStore = create<AuthStore>((set) => ({
     },
 
     initAuth: () => {
+        console.log('🔵 InitAuth: Inicializando listener de autenticación...');
         set({ isLoading: true });
         authService.onAuthStateChanged((user) => {
+            console.log('🔔 AuthStateChanged: Cambio detectado', { user, isAuthenticated: !!user });
             set({
                 user,
                 isAuthenticated: !!user,
