@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
+*.docker
 
 # Editor directories and files
 .vscode/*
@@ -30,3 +31,4 @@ REFACTOR_SUMMARY.md
 STATISTICS_PLAN.md
 
 .keys
+.env
