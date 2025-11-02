@@ -1,5 +1,5 @@
 // src/Dashboard.tsx
-import { lazy, Suspense, useMemo, useCallback, useState } from 'react';
+import { lazy, Suspense, useMemo, useCallback, useState, useEffect } from 'react';
 import { TaskCard } from '../components/TaskCard';
 import { Sidebar } from '../components/Sidebar';
 import { ConfirmDialog } from '../components/ConfirmDialog';
@@ -8,12 +8,16 @@ import toast, { Toaster } from 'react-hot-toast';
 import { useDebounce } from '../hooks/useDebounce';
 import { useTaskAnimations } from '../hooks/useTaskAnimations';
 import { useMultipleModals } from '../hooks/useModalState';
-import { useTaskStore } from '../stores/useTaskStore';
-import { useCategoryStore } from '../stores/useCategoryStore';
 import { useFilterStore } from '../stores/useFilterStore';
+import { useAuthStore } from '../stores/useAuthStore';
 import { taskUtils } from '../utils/taskUtils';
 import { type Task } from '../types/Task';
 import { type TaskSubmitData } from '../types/TaskSubmitData';
+import { migrateLocalStorageToFirestore, hasMigrated } from '../utils/migrateData';
+
+// React Query hooks
+import { useTasks, useAddTask, useUpdateTask, useDeleteTask } from '../hooks/useTasks';
+import { useCategories, useAddCategory, useUpdateCategory, useDeleteCategory } from '../hooks/useCategories';
 
 // Lazy loading de componentes de modales para code splitting
 const TaskForm = lazy(() =>
@@ -24,9 +28,22 @@ import('../components/CategoryManager').then(module => ({ default: module.Catego
 );
 
 function Dashboard() {
-    // Zustand stores
-    const { tasks, addTask, updateTask, deleteTask, toggleTaskStatus, removeCategoryFromTasks, restoreLastDeletedTask, lastDeletedTask } = useTaskStore();
-    const { categories, addCategory, updateCategory, deleteCategory } = useCategoryStore();
+    // Auth
+    const user = useAuthStore(state => state.user);
+
+    // React Query - Fetch data
+    const { data: tasks = [], isLoading: isLoadingTasks, error: tasksError } = useTasks();
+    const { data: categories = [], isLoading: isLoadingCategories } = useCategories();
+
+    // React Query - Mutations
+    const addTaskMutation = useAddTask();
+    const updateTaskMutation = useUpdateTask();
+    const deleteTaskMutation = useDeleteTask();
+    const addCategoryMutation = useAddCategory();
+    const updateCategoryMutation = useUpdateCategory();
+    const deleteCategoryMutation = useDeleteCategory();
+
+    // Zustand stores (solo UI state)
     const { searchTerm, setSearchTerm, filterCheckboxes, toggleCheckbox, clearAllCheckboxes, selectedCategories, setSelectedCategories } = useFilterStore();
 
     // Local state para modales y confirmaciones
@@ -34,6 +51,21 @@ function Dashboard() {
     const [editingTask, setEditingTask] = useState<Task | null>(null);
     const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
     const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
+    const [lastDeletedTask, setLastDeletedTask] = useState<Task | null>(null);
+
+    // Migration effect - ejecutar una sola vez al cargar
+    useEffect(() => {
+        if (user && !hasMigrated()) {
+            migrateLocalStorageToFirestore(user.uid)
+                .then(() => {
+                    toast.success('Data migrated to cloud!', { duration: 5000 });
+                })
+                .catch((error) => {
+                    console.error('Migration error:', error);
+                    toast.error('Failed to migrate data. Please try again later.');
+                });
+        }
+    }, [user]);
 
     // Debounced search
     const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -77,31 +109,47 @@ function Dashboard() {
     }, [setSelectedCategories]);
 
     const handleTaskStatusChange = useCallback((id: string, completed: boolean) => {
-        toggleTaskStatus(id, completed);
-    }, [toggleTaskStatus]);
+        const task = tasks.find(t => t.id === id);
+        if (!task) return;
+
+        updateTaskMutation.mutate({
+            id,
+            updates: { completed }
+        });
+    }, [tasks, updateTaskMutation]);
 
     const handleAddOrUpdateTask = useCallback((taskData: TaskSubmitData) => {
         if (!taskData.id) {
-        addTask(taskData);
-        toast.success('Task created successfully');
-        modals.createForm.close();
+            // Add new task
+            addTaskMutation.mutate({
+                title: taskData.title,
+                description: taskData.description || '',
+                completed: false,
+                categoryId: taskData.categoryId || '0'
+            });
+            modals.createForm.close();
         } else {
-        updateTask(taskData);
-        toast.success('Task updated successfully');
-        setEditingTask(null);
-        modals.editForm.close();
+            // Update existing task
+            updateTaskMutation.mutate({
+                id: taskData.id,
+                updates: {
+                    title: taskData.title,
+                    description: taskData.description || '',
+                    categoryId: taskData.categoryId || '0'
+                }
+            });
+            setEditingTask(null);
+            modals.editForm.close();
         }
-    }, [addTask, updateTask, modals.createForm, modals.editForm]);
+    }, [addTaskMutation, updateTaskMutation, modals.createForm, modals.editForm]);
 
     const handleAddCategory = useCallback((name: string, color: string) => {
-        addCategory(name, color);
-        toast.success('Category added successfully');
-    }, [addCategory]);
+        addCategoryMutation.mutate({ name, color });
+    }, [addCategoryMutation]);
 
     const handleEditCategory = useCallback((id: string, newName: string) => {
-        updateCategory(id, newName);
-        toast.success('Category updated successfully');
-    }, [updateCategory]);
+        updateCategoryMutation.mutate({ id, updates: { name: newName } });
+    }, [updateCategoryMutation]);
 
     const handleRequestRemoveCategory = useCallback((id: string) => {
         setCategoryToDelete(id);
@@ -110,11 +158,19 @@ function Dashboard() {
     const handleRemoveCategory = useCallback(() => {
         if (!categoryToDelete) return;
 
-        deleteCategory(categoryToDelete);
-        removeCategoryFromTasks(categoryToDelete);
+        // Actualizar tareas que tengan esta categoría a "No Category" (id "0")
+        const tasksWithCategory = tasks.filter(task => task.categoryId === categoryToDelete);
+        tasksWithCategory.forEach(task => {
+            updateTaskMutation.mutate({
+                id: task.id,
+                updates: { categoryId: '0' }
+            });
+        });
+
+        // Eliminar la categoría
+        deleteCategoryMutation.mutate(categoryToDelete);
         setCategoryToDelete(null);
-        toast.success('Category deleted successfully');
-    }, [categoryToDelete, deleteCategory, removeCategoryFromTasks]);
+    }, [categoryToDelete, tasks, deleteCategoryMutation, updateTaskMutation]);
 
     const handleRequestRemoveTask = useCallback((id: string) => {
         setTaskToDelete(id);
@@ -123,16 +179,20 @@ function Dashboard() {
     const handleRemoveTask = useCallback(() => {
         if (!taskToDelete) return;
 
+        const task = tasks.find(t => t.id === taskToDelete);
+        if (task) {
+            setLastDeletedTask(task);
+        }
+
         addRemovingTask(taskToDelete);
         setTaskToDelete(null);
         modals.editForm.closeImmediately();
 
         setTimeout(() => {
-        deleteTask(taskToDelete);
-        removeRemovingTask(taskToDelete);
-        toast.success('Task deleted successfully');
+            deleteTaskMutation.mutate(taskToDelete);
+            removeRemovingTask(taskToDelete);
         }, 500);
-    }, [taskToDelete, deleteTask, addRemovingTask, removeRemovingTask, modals.editForm]);
+    }, [taskToDelete, tasks, deleteTaskMutation, addRemovingTask, removeRemovingTask, modals.editForm]);
 
     const handleCancelDelete = useCallback(() => {
         setTaskToDelete(null);
@@ -146,135 +206,153 @@ function Dashboard() {
 
     const handleUndoDelete = useCallback(() => {
         if (lastDeletedTask) {
-        restoreLastDeletedTask();
-        toast.success('Task restored successfully');
+            addTaskMutation.mutate(lastDeletedTask);
+            setLastDeletedTask(null);
         } else {
-        toast.error('No task to restore');
+            toast.error('No task to restore');
         }
-    }, [lastDeletedTask, restoreLastDeletedTask]);
+    }, [lastDeletedTask, addTaskMutation]);
 
     // Render task list
     const taskList = useMemo(() =>
         tasksToRenderWithAnimations.map((task) => {
-        const category = categories.find((cat) => cat.id === task.categoryId);
-        return (
-            <TaskCard
-            key={task.id}
-            task={task}
-            onStatusChange={handleTaskStatusChange}
-            color={category?.color}
-            categoryName={category?.name}
-            onTaskClick={handleOpenEditModal}
-            isRemoving={isTaskRemoving(task.id) || isTaskExiting(task.id)}
-            isEntering={isTaskEntering(task.id)}
-            />
-        );
+            const category = categories.find((cat) => cat.id === task.categoryId);
+            return (
+                <TaskCard
+                    key={task.id}
+                    task={task}
+                    onStatusChange={handleTaskStatusChange}
+                    color={category?.color}
+                    categoryName={category?.name}
+                    onTaskClick={handleOpenEditModal}
+                    isRemoving={isTaskRemoving(task.id) || isTaskExiting(task.id)}
+                    isEntering={isTaskEntering(task.id)}
+                />
+            );
         }),
         [tasksToRenderWithAnimations, categories, handleTaskStatusChange, handleOpenEditModal, isTaskRemoving, isTaskExiting, isTaskEntering]
     );
 
+    // Loading state
+    if (isLoadingTasks || isLoadingCategories) {
+        return (
+            <div className='min-h-screen bg-slate-800 flex items-center justify-center'>
+                <div className="text-white text-2xl">Loading your tasks...</div>
+            </div>
+        );
+    }
+
+    // Error state
+    if (tasksError) {
+        return (
+            <div className='min-h-screen bg-slate-800 flex items-center justify-center'>
+                <div className="text-red-400 text-2xl">Error loading tasks. Please try again.</div>
+            </div>
+        );
+    }
+
     return (
         <>
-        <Toaster position="top-right" reverseOrder={false} />
-        <div className='min-h-screen bg-slate-800 pb-3'>
-            <div className="mx-5 my-10">
-            <div className="bg-slate-900 flex flex-row rounded-lg m-5 mb-10 min-w-fit">
-                <div className="bg-slate-700 w-1/5 p-10 rounded-l-lg min-w-64 border-r border-slate-600">
-                <Sidebar
-                    searchTerm={searchTerm}
-                    onSearchChange={setSearchTerm}
-                    checkboxes={filterCheckboxes}
-                    onCheckboxChange={handleCheckboxChange}
-                    completedTasksCount={completedTasksCount}
-                    pendingTasksCount={pendingTasksCount}
-                    onClearAllStateCheckboxes={handleClearAllCheckboxes}
-                    categories={categories}
-                    onSelectedCategoriesChange={handleSelectedCategoriesChange}
-                    selectedCategories={selectedCategories}
-                    categoryTaskCounts={categoryCounts}
-                    setIsFormOpen={modals.createForm.open}
-                    filteredTasksCount={filteredTasks.length}
-                    setIsCategoryManagerOpen={modals.categoryManager.open}
-                    onUndoLastDelete={handleUndoDelete}
-                    hasLastDeletedTask={lastDeletedTask !== null}
-                />
+            <Toaster position="top-right" reverseOrder={false} />
+            <div className='min-h-screen bg-slate-800 pb-3'>
+                <div className="mx-5 my-10">
+                    <div className="bg-slate-900 flex flex-row rounded-lg m-5 mb-10 min-w-fit">
+                        <div className="bg-slate-700 w-1/5 p-10 rounded-l-lg min-w-64 border-r border-slate-600">
+                            <Sidebar
+                                searchTerm={searchTerm}
+                                onSearchChange={setSearchTerm}
+                                checkboxes={filterCheckboxes}
+                                onCheckboxChange={handleCheckboxChange}
+                                completedTasksCount={completedTasksCount}
+                                pendingTasksCount={pendingTasksCount}
+                                onClearAllStateCheckboxes={handleClearAllCheckboxes}
+                                categories={categories}
+                                onSelectedCategoriesChange={handleSelectedCategoriesChange}
+                                selectedCategories={selectedCategories}
+                                categoryTaskCounts={categoryCounts}
+                                setIsFormOpen={modals.createForm.open}
+                                filteredTasksCount={filteredTasks.length}
+                                setIsCategoryManagerOpen={modals.categoryManager.open}
+                                onUndoLastDelete={handleUndoDelete}
+                                hasLastDeletedTask={lastDeletedTask !== null}
+                            />
+                        </div>
+                        <div className='p-10 flex-1 min-w-96'>
+                            <div className="flex flex-row flex-wrap gap-2.5 justify-center">
+                                {taskList.length > 0 ? taskList : <p className='text-white text-4xl'>No tasks found</p>}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div className='p-10 flex-1 min-w-96'>
-                <div className="flex flex-row flex-wrap gap-2.5 justify-center">
-                    {taskList.length > 0 ? taskList : <p className='text-white text-4xl'>No tasks found</p>}
-                </div>
-                </div>
-            </div>
-            </div>
 
-            {/* Create Task Modal */}
-            {modals.createForm.isOpen && (
-            <ModalBackdrop isClosing={modals.createForm.isClosing} onClose={modals.createForm.close}>
-                <Suspense fallback={<div className="text-white">Loading...</div>}>
-                <TaskForm
-                    mode='create'
-                    onClose={modals.createForm.close}
-                    onSubmit={handleAddOrUpdateTask}
-                    categories={categories}
-                />
-                </Suspense>
-            </ModalBackdrop>
-            )}
-
-            {/* Edit Task Modal */}
-            {editingTask && modals.editForm.isOpen && (
-            <ModalBackdrop isClosing={modals.editForm.isClosing} onClose={modals.editForm.close}>
-                <Suspense fallback={<div className="text-white">Loading...</div>}>
-                <TaskForm
-                    mode='edit'
-                    task={editingTask}
-                    onClose={modals.editForm.close}
-                    onSubmit={handleAddOrUpdateTask}
-                    onDelete={handleRequestRemoveTask}
-                    categories={categories}
-                />
-                </Suspense>
-                {taskToDelete && (
-                <ConfirmDialog
-                    isOpen={true}
-                    title='Confirm Deletion'
-                    message='Are you sure you want to delete this task?'
-                    onConfirm={handleRemoveTask}
-                    onCancel={handleCancelDelete}
-                    confirmText='Delete'
-                    cancelText='Cancel'
-                />
+                {/* Create Task Modal */}
+                {modals.createForm.isOpen && (
+                    <ModalBackdrop isClosing={modals.createForm.isClosing} onClose={modals.createForm.close}>
+                        <Suspense fallback={<div className="text-white">Loading...</div>}>
+                            <TaskForm
+                                mode='create'
+                                onClose={modals.createForm.close}
+                                onSubmit={handleAddOrUpdateTask}
+                                categories={categories}
+                            />
+                        </Suspense>
+                    </ModalBackdrop>
                 )}
-            </ModalBackdrop>
-            )}
 
-            {/* Category Manager Modal */}
-            {modals.categoryManager.isOpen && (
-            <ModalBackdrop isClosing={modals.categoryManager.isClosing} onClose={modals.categoryManager.close}>
-                <Suspense fallback={<div className="text-white">Loading...</div>}>
-                <CategoryManager
-                    categories={categories}
-                    categoriesCount={categoryCounts}
-                    onClose={modals.categoryManager.close}
-                    onAddCategory={handleAddCategory}
-                    onEditCategory={handleEditCategory}
-                    onDeleteCategory={handleRequestRemoveCategory}
-                />
-                </Suspense>
-                {categoryToDelete && (
-                <ConfirmDialog
-                    isOpen={true}
-                    title='Confirm Deletion'
-                    message='Are you sure you want to delete this category?'
-                    onConfirm={handleRemoveCategory}
-                    onCancel={handleCancelDelete}
-                    confirmText='Delete'
-                    cancelText='Cancel'
-                />
+                {/* Edit Task Modal */}
+                {editingTask && modals.editForm.isOpen && (
+                    <ModalBackdrop isClosing={modals.editForm.isClosing} onClose={modals.editForm.close}>
+                        <Suspense fallback={<div className="text-white">Loading...</div>}>
+                            <TaskForm
+                                mode='edit'
+                                task={editingTask}
+                                onClose={modals.editForm.close}
+                                onSubmit={handleAddOrUpdateTask}
+                                onDelete={handleRequestRemoveTask}
+                                categories={categories}
+                            />
+                        </Suspense>
+                        {taskToDelete && (
+                            <ConfirmDialog
+                                isOpen={true}
+                                title='Confirm Deletion'
+                                message='Are you sure you want to delete this task?'
+                                onConfirm={handleRemoveTask}
+                                onCancel={handleCancelDelete}
+                                confirmText='Delete'
+                                cancelText='Cancel'
+                            />
+                        )}
+                    </ModalBackdrop>
                 )}
-            </ModalBackdrop>
-            )}
-        </div>
+
+                {/* Category Manager Modal */}
+                {modals.categoryManager.isOpen && (
+                    <ModalBackdrop isClosing={modals.categoryManager.isClosing} onClose={modals.categoryManager.close}>
+                        <Suspense fallback={<div className="text-white">Loading...</div>}>
+                            <CategoryManager
+                                categories={categories}
+                                categoriesCount={categoryCounts}
+                                onClose={modals.categoryManager.close}
+                                onAddCategory={handleAddCategory}
+                                onEditCategory={handleEditCategory}
+                                onDeleteCategory={handleRequestRemoveCategory}
+                            />
+                        </Suspense>
+                        {categoryToDelete && (
+                            <ConfirmDialog
+                                isOpen={true}
+                                title='Confirm Deletion'
+                                message='Are you sure you want to delete this category?'
+                                onConfirm={handleRemoveCategory}
+                                onCancel={handleCancelDelete}
+                                confirmText='Delete'
+                                cancelText='Cancel'
+                            />
+                        )}
+                    </ModalBackdrop>
+                )}
+            </div>
         </>
     );
 }
